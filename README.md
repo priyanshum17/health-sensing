@@ -33,7 +33,7 @@ Each experiment page includes:
 
 ```sh
 # Clone and enter project
-git clone <your-repo-url> healthsensing
+git clone https://github.com/priyanshum17/healthsensing
 cd healthsensing
 
 # Install dependencies and run app
