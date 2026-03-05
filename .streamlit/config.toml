@@ -43,6 +43,9 @@
 # Default: true
 # showErrorDetails = true
 
+# Hide default multipage sidebar navigation.
+showSidebarNavigation = false
+
 
 [runner]
 
