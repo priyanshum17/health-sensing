@@ -13,6 +13,7 @@ def back_to_home_button(
         button_label,
         key=key,
         use_container_width=use_container_width,
+        type="primary",
     ):
         st.switch_page("app.py")
 

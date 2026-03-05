@@ -10,7 +10,7 @@ def render_page_header(title: str, subtitle: str, state_key: str) -> None:
         st.title(title)
         st.caption(subtitle)
     with action_col:
-        back_to_home_button(label="Home", icon="<", key=f"{state_key}_home")
+        back_to_home_button(label="Home", icon="", key=f"{state_key}_home")
 
 
 def render_instructions(section_title: str, overview: str, steps: list[str]) -> None:
