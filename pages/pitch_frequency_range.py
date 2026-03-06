@@ -15,31 +15,39 @@ st.set_page_config(
 
 render_page_header(
     "Pitch Frequency Range Test",
-    "Use tone playback to find your highest audible frequency between 20 Hz and 20 kHz.",
+    "Use fine-grained controls to find your audible frequency range between 20 Hz and 20 kHz.",
     "pitch",
 )
 
 render_instructions(
     "How To Run This Test",
     (
-        "Test tones from low to high frequencies. Keep system volume fixed and use "
-        "a quiet environment."
+        "Test tones from low to high frequencies with small frequency steps. Keep "
+        "system volume fixed and use a quiet environment."
     ),
     [
-        "Select a frequency with 100 Hz step size and play the test tone.",
+        "Use the slider for quick sweeps and number input for exact frequencies.",
         "Increase frequency until you can no longer hear it reliably.",
         "Record the highest clearly audible frequency.",
     ],
 )
 
+
+def format_frequency_hz(frequency_hz: int) -> str:
+    """Format frequency as Hz under 1 kHz and kHz above 1 kHz."""
+    if frequency_hz < 1000:
+        return f"{frequency_hz} Hz"
+    return f"{frequency_hz / 1000:.2f} kHz"
+
 with st.container(border=True):
     st.subheader("Tone Playback")
-    frequency_hz = st.slider(
-        "Test frequency (Hz)",
+    frequency_hz = st.number_input(
+        "Exact test frequency (Hz)",
         min_value=20,
         max_value=20000,
         value=4000,
-        step=100,
+        step=1,
+        key="pitch_playback_input",
     )
     amplitude = st.slider(
         "Playback amplitude",
@@ -49,6 +57,7 @@ with st.container(border=True):
         step=0.05,
     )
     st.audio(single_tone_wav(frequency_hz=frequency_hz, amplitude=amplitude), format="audio/wav")
+    st.caption(f"Current test tone: {format_frequency_hz(int(frequency_hz))}")
 
 with st.container(border=True):
     st.subheader("Save Result")
@@ -58,14 +67,14 @@ with st.container(border=True):
         min_value=20,
         max_value=20000,
         value=20,
-        step=100,
+        step=1,
     )
     highest_audible = col_2.number_input(
         "Highest audible frequency (Hz)",
         min_value=20,
         max_value=20000,
-        value=frequency_hz,
-        step=100,
+        value=int(frequency_hz),
+        step=1,
     )
     notes = st.text_area(
         "Notes",
@@ -79,9 +88,9 @@ with st.container(border=True):
             save_result(
                 "pitch",
                 {
-                    "Lowest Audible (Hz)": f"{lowest_audible}",
-                    "Highest Audible (Hz)": f"{highest_audible}",
-                    "Range Width (Hz)": f"{bandwidth}",
+                    "Lowest Audible": format_frequency_hz(int(lowest_audible)),
+                    "Highest Audible": format_frequency_hz(int(highest_audible)),
+                    "Range Width": format_frequency_hz(int(bandwidth)),
                     "Notes": notes.strip() or "None",
                 },
             )

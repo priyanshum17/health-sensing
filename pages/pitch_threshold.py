@@ -10,7 +10,7 @@ from utils.adaptive_3afc import (
     register_response,
     reset_adaptive_state,
 )
-from utils.audio_tools import noise_burst_with_gap_wav
+from utils.audio_tools import single_tone_wav
 from utils.experiment_layout import (
     render_instructions,
     render_page_header,
@@ -19,66 +19,76 @@ from utils.experiment_layout import (
 )
 
 st.set_page_config(
-    page_title="Sound Gap Detection Test",
+    page_title="Pitch Discrimination Threshold Test",
     layout="wide",
 )
 
 render_page_header(
-    "Sound Gap Detection Test",
-    "3AFC adaptive test: select which interval contains a silent gap.",
-    "gap",
+    "Pitch Discrimination Threshold Test",
+    "3AFC adaptive test: identify the interval with higher pitch.",
+    "pitch_threshold",
 )
 
 render_instructions(
     "How To Run This Test",
     (
-        "You will hear three short noise bursts. Exactly one burst contains a "
-        "centered silence gap. Pick the correct interval every trial."
+        "You will hear three tones at the same level. One tone has a slightly higher "
+        "frequency than the reference. Select that interval each trial."
     ),
     [
-        "Use all three play buttons to compare candidates before answering.",
-        "Select the interval with the gap, then submit your response.",
-        "The adaptive staircase will shrink or expand the gap based on performance.",
+        "Keep volume fixed and use headphones if possible.",
+        "Answer every trial even when unsure (forced choice).",
+        "The adaptive staircase estimates your minimum detectable frequency increment.",
     ],
 )
 
 adaptive = init_adaptive_state(
-    "gap",
-    start_level=20.0,
-    min_level=0.5,
-    max_level=120.0,
-    initial_step=6.0,
-    min_step=0.25,
+    "pitch_threshold",
+    start_level=40.0,
+    min_level=1.0,
+    max_level=1000.0,
+    initial_step=20.0,
+    min_step=1.0,
     max_reversals=8,
 )
-trial = get_or_create_trial("gap")
-current_gap_ms = float(adaptive["current_level"])
-feedback_key = "gap_last_feedback"
+trial = get_or_create_trial("pitch_threshold")
+current_delta_hz = float(adaptive["current_level"])
+feedback_key = "pitch_threshold_last_feedback"
 
 with st.container(border=True):
     st.subheader("3AFC Trial")
+    reference_hz = st.number_input(
+        "Reference frequency (Hz)",
+        min_value=200,
+        max_value=6000,
+        value=1000,
+        step=10,
+    )
     amplitude = st.slider(
         "Playback amplitude",
         min_value=0.05,
         max_value=0.8,
         value=0.35,
         step=0.05,
-        key="gap_amplitude",
     )
+    target_hz = min(20000.0, float(reference_hz) + current_delta_hz)
     st.caption(
-        f"Current adaptive gap level: {current_gap_ms:.2f} ms | "
-        f"Reversals: {len(adaptive['reversals'])}/{adaptive['max_reversals']}"
+        f"Current adaptive pitch delta: {current_delta_hz:.1f} Hz | "
+        f"Target frequency: {target_hz:.1f} Hz"
     )
+    st.caption(f"Reversals: {len(adaptive['reversals'])}/{adaptive['max_reversals']}")
+
     play_cols = st.columns(3)
     for idx in range(3):
-        gap_ms = current_gap_ms if idx == trial["target_index"] else 0.0
-        wav_bytes = noise_burst_with_gap_wav(
-            duration_s=0.8,
-            gap_ms=gap_ms,
-            amplitude=amplitude,
-            seed=trial["seed"] + idx,
+        test_hz = target_hz if idx == trial["target_index"] else float(reference_hz)
+        play_cols[idx].audio(
+            single_tone_wav(
+                frequency_hz=test_hz,
+                duration_s=0.65,
+                amplitude=amplitude,
+            ),
+            format="audio/wav",
         )
-        play_cols[idx].audio(wav_bytes, format="audio/wav")
         play_cols[idx].caption(f"Interval {idx + 1}")
 
 with st.container(border=True):
@@ -88,7 +98,7 @@ with st.container(border=True):
         st.success("Previous response: Correct.")
     elif last_feedback == "incorrect":
         st.error("Previous response: Incorrect.")
-    choice = st.radio("Which interval had the gap?", [1, 2, 3], horizontal=True)
+    choice = st.radio("Which interval had the higher pitch?", [1, 2, 3], horizontal=True)
     submitted = st.button(
         "Submit Response",
         type="primary",
@@ -100,17 +110,24 @@ with st.container(border=True):
         is_correct = chosen_idx == int(trial["target_index"])
         register_response(
             adaptive,
-            level_used=current_gap_ms,
+            level_used=current_delta_hz,
             is_correct=is_correct,
             chosen_index=chosen_idx,
             target_index=int(trial["target_index"]),
         )
-        advance_trial("gap")
+        advance_trial("pitch_threshold")
         st.session_state[feedback_key] = "correct" if is_correct else "incorrect"
         st.rerun()
 
-    estimated_gap = estimate_threshold(adaptive)
-    st.metric("Estimated Gap Threshold (ms)", f"{estimated_gap:.2f}")
+    estimated_hz = estimate_threshold(adaptive)
+    history = adaptive["history"]
+    recent_accuracy = 0.0
+    if history:
+        recent = history[-12:]
+        recent_accuracy = 100.0 * statistics.mean([1.0 if item["correct"] else 0.0 for item in recent])
+    col_1, col_2 = st.columns(2)
+    col_1.metric("Estimated Delta Threshold (Hz)", f"{estimated_hz:.1f}")
+    col_2.metric("Recent Accuracy (last 12)", f"{recent_accuracy:.1f}%")
 
 if adaptive["finished"]:
     with st.container(border=True):
@@ -133,18 +150,18 @@ if adaptive["finished"]:
             colors = ["#2E7D32" if item else "#C62828" for item in correct]
 
             fig, ax = plt.subplots(figsize=(8, 3.5))
-            ax.plot(trials, levels, color="#1565C0", linewidth=1.6, label="Gap Level")
+            ax.plot(trials, levels, color="#1565C0", linewidth=1.6, label="Delta Level")
             ax.scatter(trials, levels, c=colors, s=25, alpha=0.9, label="Trial Response")
             ax.axhline(
-                estimated_gap,
+                estimated_hz,
                 color="#6A1B9A",
                 linestyle="--",
                 linewidth=1.3,
-                label=f"Estimated Threshold {estimated_gap:.2f} ms",
+                label=f"Estimated Threshold {estimated_hz:.1f} Hz",
             )
             ax.set_xlabel("Trial Number")
-            ax.set_ylabel("Gap (ms)")
-            ax.set_title("Gap Detection Adaptive Staircase")
+            ax.set_ylabel("Pitch Delta (Hz)")
+            ax.set_title("Pitch Discrimination Adaptive Staircase")
             ax.grid(alpha=0.25)
             ax.legend(loc="best")
             st.pyplot(fig)
@@ -156,23 +173,24 @@ with st.container(border=True):
     st.subheader("Save Result")
     notes = st.text_area(
         "Notes",
-        placeholder="Headphones, comfort level, trial strategy, distractions, etc.",
+        placeholder="Headphones, fatigue effects, retries, room noise, etc.",
     )
     if st.button("Save Result", type="primary", use_container_width=True):
         save_result(
-            "gap",
+            "pitch_threshold",
             {
                 "Adaptive Method": "3AFC 2-down/1-up",
-                "Estimated Gap Threshold (ms)": f"{estimated_gap:.2f}",
+                "Reference Frequency (Hz)": f"{reference_hz}",
+                "Estimated Delta Threshold (Hz)": f"{estimated_hz:.1f}",
                 "Total Trials": f"{len(adaptive['history'])}",
                 "Reversals": f"{len(adaptive['reversals'])}",
                 "Notes": notes.strip() or "None",
             },
         )
-        st.success("Gap detection result saved.")
+        st.success("Pitch discrimination result saved.")
     if st.button("Restart Adaptive Test", use_container_width=True):
-        reset_adaptive_state("gap")
+        reset_adaptive_state("pitch_threshold")
         st.session_state.pop(feedback_key, None)
         st.rerun()
 
-render_saved_result("gap")
+render_saved_result("pitch_threshold")

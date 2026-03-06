@@ -1,6 +1,6 @@
 # Health Sensing
 
-A Streamlit application for running six interactive human sensory experiments across sight and hearing.
+A Streamlit application for running six standardized human sensory experiments across vision and hearing.
 
 ## Overview
 
@@ -8,12 +8,12 @@ This project helps users measure and record sensing limits using guided, page-by
 
 Implemented experiment pages:
 
-- Greyscale resolution
-- Angular field of view
-- Smallest noticeable size
+- Contrast sensitivity (Pelli-style)
+- Visual resolution (Tumbling E)
 - Pitch frequency range
-- Sound gap detection
-- Amplitude threshold
+- Sound gap detection (3AFC adaptive)
+- Amplitude discrimination (3AFC adaptive)
+- Pitch discrimination threshold (3AFC adaptive)
 
 Each experiment page includes:
 
@@ -59,16 +59,17 @@ healthsensing/
   app.py                     # Homepage with experiment tiles and objective summary
   pages/                     # Individual experiment pages
     greyscale_resolution.py
-    angular_field_of_view.py
     smallest_noticeable_size.py
     pitch_frequency_range.py
     sound_gap_detection.py
     amplitude_threshold.py
+    pitch_threshold.py
   utils/                     # Shared helpers
     navigation.py            # Navigation and CTA buttons
     home.py                  # Homepage tile rendering
     experiment_layout.py     # Shared page header/instructions/save-result blocks
     audio_tools.py           # WAV audio generation for hearing experiments
+    adaptive_3afc.py         # Shared 3AFC adaptive staircase logic
   .streamlit/config.toml     # Streamlit theme/runtime config
   pyproject.toml             # Python and dependency metadata
   Makefile                   # Setup/run/clean shortcuts
