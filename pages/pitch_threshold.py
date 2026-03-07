@@ -17,6 +17,7 @@ from utils.experiment_layout import (
     render_saved_result,
     save_result,
 )
+from utils.test_config import load_test_config
 
 st.set_page_config(
     page_title="Pitch Discrimination Threshold Test",
@@ -39,17 +40,22 @@ render_instructions(
         "Keep volume fixed and use headphones if possible.",
         "Answer every trial even when unsure (forced choice).",
         "The adaptive staircase estimates your minimum detectable frequency increment.",
+        "After finishing, recreate the staircase plot from trial history as a lab task.",
     ],
 )
 
+config = load_test_config()
+cfg = config["pitch_discrimination"]
+
 adaptive = init_adaptive_state(
     "pitch_threshold",
-    start_level=40.0,
-    min_level=1.0,
-    max_level=1000.0,
-    initial_step=20.0,
-    min_step=1.0,
-    max_reversals=8,
+    start_level=float(cfg["adaptive"]["start_level"]),
+    min_level=float(cfg["adaptive"]["min_level"]),
+    max_level=float(cfg["adaptive"]["max_level"]),
+    initial_step=float(cfg["adaptive"]["initial_step"]),
+    min_step=float(cfg["adaptive"]["min_step"]),
+    max_reversals=int(cfg["adaptive"]["max_reversals"]),
+    down=int(cfg["adaptive"]["down"]),
 )
 trial = get_or_create_trial("pitch_threshold")
 current_delta_hz = float(adaptive["current_level"])
@@ -59,17 +65,17 @@ with st.container(border=True):
     st.subheader("3AFC Trial")
     reference_hz = st.number_input(
         "Reference frequency (Hz)",
-        min_value=200,
-        max_value=6000,
-        value=1000,
-        step=10,
+        min_value=int(cfg["reference_frequency_hz"]["min"]),
+        max_value=int(cfg["reference_frequency_hz"]["max"]),
+        value=int(cfg["reference_frequency_hz"]["default"]),
+        step=int(cfg["reference_frequency_hz"]["step"]),
     )
     amplitude = st.slider(
         "Playback amplitude",
-        min_value=0.05,
-        max_value=0.8,
-        value=0.35,
-        step=0.05,
+        min_value=float(cfg["playback_amplitude"]["min"]),
+        max_value=float(cfg["playback_amplitude"]["max"]),
+        value=float(cfg["playback_amplitude"]["default"]),
+        step=float(cfg["playback_amplitude"]["step"]),
     )
     target_hz = min(20000.0, float(reference_hz) + current_delta_hz)
     st.caption(
@@ -84,7 +90,7 @@ with st.container(border=True):
         play_cols[idx].audio(
             single_tone_wav(
                 frequency_hz=test_hz,
-                duration_s=0.65,
+                duration_s=float(cfg["tone_duration_s"]),
                 amplitude=amplitude,
             ),
             format="audio/wav",
@@ -144,6 +150,7 @@ if adaptive["finished"]:
         try:
             import matplotlib.pyplot as plt
 
+            # LAB NOTE: Students should be able to reproduce this figure from history data.
             trials = list(range(1, total_trials + 1))
             levels = [float(item["level"]) for item in history]
             correct = [bool(item["correct"]) for item in history]

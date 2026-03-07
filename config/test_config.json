@@ -1,0 +1,126 @@
+{
+  "greyscale": {
+    "letters": "CDHKNORSVZ",
+    "background_rgb": 255,
+    "preview": {
+      "rows": 12,
+      "log_contrast_step": 0.15,
+      "seed": 1988
+    },
+    "adaptive": {
+      "start_level": 32.0,
+      "min_level": 0.4,
+      "max_level": 70.0,
+      "initial_step": 4.0,
+      "min_step": 0.2,
+      "max_reversals": 8,
+      "down": 2
+    }
+  },
+  "tumbling_e": {
+    "size_levels_px": [140, 112, 90, 72, 58, 46, 36, 30, 24, 20, 16, 12, 10, 8, 6, 4],
+    "max_reversals": 8,
+    "setup": {
+      "distance_cm": {
+        "min": 20.0,
+        "max": 500.0,
+        "default": 100.0,
+        "step": 1.0
+      },
+      "screen_width_mm": {
+        "min": 120.0,
+        "max": 1000.0,
+        "default": 530.0,
+        "step": 1.0
+      },
+      "screen_width_px": {
+        "min": 800,
+        "max": 8000,
+        "default": 1920,
+        "step": 1
+      }
+    }
+  },
+  "pitch_range": {
+    "frequency_hz": {
+      "min": 20,
+      "max": 20000,
+      "default": 4000,
+      "step": 1
+    },
+    "playback_amplitude": {
+      "min": 0.05,
+      "max": 0.8,
+      "default": 0.35,
+      "step": 0.05
+    }
+  },
+  "gap_detection": {
+    "adaptive": {
+      "start_level": 20.0,
+      "min_level": 0.5,
+      "max_level": 120.0,
+      "initial_step": 6.0,
+      "min_step": 0.25,
+      "max_reversals": 8,
+      "down": 2
+    },
+    "playback": {
+      "amplitude": {
+        "min": 0.05,
+        "max": 0.8,
+        "default": 0.35,
+        "step": 0.05
+      },
+      "burst_duration_s": 0.8
+    }
+  },
+  "amplitude_discrimination": {
+    "adaptive": {
+      "start_level": 3.0,
+      "min_level": 0.2,
+      "max_level": 20.0,
+      "initial_step": 1.0,
+      "min_step": 0.1,
+      "max_reversals": 8,
+      "down": 2
+    },
+    "reference_amplitude": {
+      "min": 0.08,
+      "max": 0.6,
+      "default": 0.3,
+      "step": 0.01
+    },
+    "reference_frequency_hz": {
+      "min": 200,
+      "max": 4000,
+      "default": 1000,
+      "step": 10
+    },
+    "tone_duration_s": 1.5
+  },
+  "pitch_discrimination": {
+    "adaptive": {
+      "start_level": 40.0,
+      "min_level": 1.0,
+      "max_level": 1000.0,
+      "initial_step": 20.0,
+      "min_step": 1.0,
+      "max_reversals": 8,
+      "down": 2
+    },
+    "reference_frequency_hz": {
+      "min": 200,
+      "max": 6000,
+      "default": 1000,
+      "step": 10
+    },
+    "playback_amplitude": {
+      "min": 0.05,
+      "max": 0.8,
+      "default": 0.35,
+      "step": 0.05
+    },
+    "tone_duration_s": 1.5
+  }
+}

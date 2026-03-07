@@ -10,6 +10,7 @@ from utils.experiment_layout import (
     render_saved_result,
     save_result,
 )
+from utils.test_config import load_test_config
 
 st.set_page_config(
     page_title="Visual Resolution (Tumbling E Staircase)",
@@ -35,7 +36,9 @@ render_instructions(
     ],
 )
 
-SIZE_LEVELS_PX = [140, 112, 90, 72, 58, 46, 36, 30, 24, 20, 16, 12, 10, 8, 6, 4]
+config = load_test_config()
+cfg = config["tumbling_e"]
+SIZE_LEVELS_PX = [int(v) for v in cfg["size_levels_px"]]
 ORIENTATIONS = ["Up", "Down", "Left", "Right"]
 
 
@@ -48,7 +51,7 @@ def init_tumbling_state() -> dict:
             "last_direction": None,
             "reversals": [],
             "history": [],
-            "max_reversals": 8,
+            "max_reversals": int(cfg["max_reversals"]),
             "finished": False,
         }
     return st.session_state[key]
@@ -66,7 +69,8 @@ def e_symbol(size_px: int, orientation: str) -> str:
     return (
         "<div style='display:flex; justify-content:center; align-items:center; "
         "background:#ffffff; border:1px solid #d0d0d0; border-radius:8px; padding:0.3rem;'>"
-        f"<div style='font-size:{size_px}px; font-family:serif; font-weight:800; "
+        # LAB NOTE: Keep this sans-serif so the optotype does not include serif end strokes.
+        f"<div style='font-size:{size_px}px; font-family:\"Helvetica Neue\", Arial, sans-serif; font-weight:800; "
         f"color:#101010; line-height:1; transform:rotate({rotation}deg);'>E</div></div>"
     )
 
@@ -76,24 +80,24 @@ with st.container(border=True):
     col_1, col_2, col_3 = st.columns(3)
     distance_cm = col_1.number_input(
         "Viewing distance (cm)",
-        min_value=20.0,
-        max_value=500.0,
-        value=100.0,
-        step=1.0,
+        min_value=float(cfg["setup"]["distance_cm"]["min"]),
+        max_value=float(cfg["setup"]["distance_cm"]["max"]),
+        value=float(cfg["setup"]["distance_cm"]["default"]),
+        step=float(cfg["setup"]["distance_cm"]["step"]),
     )
     screen_width_mm = col_2.number_input(
         "Screen width (mm)",
-        min_value=120.0,
-        max_value=1000.0,
-        value=530.0,
-        step=1.0,
+        min_value=float(cfg["setup"]["screen_width_mm"]["min"]),
+        max_value=float(cfg["setup"]["screen_width_mm"]["max"]),
+        value=float(cfg["setup"]["screen_width_mm"]["default"]),
+        step=float(cfg["setup"]["screen_width_mm"]["step"]),
     )
     screen_width_px = col_3.number_input(
         "Screen width (pixels)",
-        min_value=800,
-        max_value=8000,
-        value=1920,
-        step=1,
+        min_value=int(cfg["setup"]["screen_width_px"]["min"]),
+        max_value=int(cfg["setup"]["screen_width_px"]["max"]),
+        value=int(cfg["setup"]["screen_width_px"]["default"]),
+        step=int(cfg["setup"]["screen_width_px"]["step"]),
     )
     mm_per_px = float(screen_width_mm) / float(screen_width_px)
     st.caption(f"Pixel pitch: {mm_per_px:.4f} mm/px")

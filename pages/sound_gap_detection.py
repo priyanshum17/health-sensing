@@ -17,6 +17,7 @@ from utils.experiment_layout import (
     render_saved_result,
     save_result,
 )
+from utils.test_config import load_test_config
 
 st.set_page_config(
     page_title="Sound Gap Detection Test",
@@ -39,17 +40,22 @@ render_instructions(
         "Use all three play buttons to compare candidates before answering.",
         "Select the interval with the gap, then submit your response.",
         "The adaptive staircase will shrink or expand the gap based on performance.",
+        "After finishing, recreate the staircase plot from the trial history as a lab exercise.",
     ],
 )
 
+config = load_test_config()
+cfg = config["gap_detection"]
+
 adaptive = init_adaptive_state(
     "gap",
-    start_level=20.0,
-    min_level=0.5,
-    max_level=120.0,
-    initial_step=6.0,
-    min_step=0.25,
-    max_reversals=8,
+    start_level=float(cfg["adaptive"]["start_level"]),
+    min_level=float(cfg["adaptive"]["min_level"]),
+    max_level=float(cfg["adaptive"]["max_level"]),
+    initial_step=float(cfg["adaptive"]["initial_step"]),
+    min_step=float(cfg["adaptive"]["min_step"]),
+    max_reversals=int(cfg["adaptive"]["max_reversals"]),
+    down=int(cfg["adaptive"]["down"]),
 )
 trial = get_or_create_trial("gap")
 current_gap_ms = float(adaptive["current_level"])
@@ -59,10 +65,10 @@ with st.container(border=True):
     st.subheader("3AFC Trial")
     amplitude = st.slider(
         "Playback amplitude",
-        min_value=0.05,
-        max_value=0.8,
-        value=0.35,
-        step=0.05,
+        min_value=float(cfg["playback"]["amplitude"]["min"]),
+        max_value=float(cfg["playback"]["amplitude"]["max"]),
+        value=float(cfg["playback"]["amplitude"]["default"]),
+        step=float(cfg["playback"]["amplitude"]["step"]),
         key="gap_amplitude",
     )
     st.caption(
@@ -73,7 +79,7 @@ with st.container(border=True):
     for idx in range(3):
         gap_ms = current_gap_ms if idx == trial["target_index"] else 0.0
         wav_bytes = noise_burst_with_gap_wav(
-            duration_s=0.8,
+            duration_s=float(cfg["playback"]["burst_duration_s"]),
             gap_ms=gap_ms,
             amplitude=amplitude,
             seed=trial["seed"] + idx,
@@ -127,6 +133,7 @@ if adaptive["finished"]:
         try:
             import matplotlib.pyplot as plt
 
+            # LAB NOTE: Students can rebuild this plot from adaptive["history"] manually.
             trials = list(range(1, total_trials + 1))
             levels = [float(item["level"]) for item in history]
             correct = [bool(item["correct"]) for item in history]

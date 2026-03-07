@@ -7,6 +7,7 @@ from utils.experiment_layout import (
     render_saved_result,
     save_result,
 )
+from utils.test_config import load_test_config
 
 st.set_page_config(
     page_title="Pitch Frequency Range Test",
@@ -32,6 +33,9 @@ render_instructions(
     ],
 )
 
+config = load_test_config()
+cfg = config["pitch_range"]
+
 
 def format_frequency_hz(frequency_hz: int) -> str:
     """Format frequency as Hz under 1 kHz and kHz above 1 kHz."""
@@ -43,18 +47,18 @@ with st.container(border=True):
     st.subheader("Tone Playback")
     frequency_hz = st.number_input(
         "Exact test frequency (Hz)",
-        min_value=20,
-        max_value=20000,
-        value=4000,
-        step=1,
+        min_value=int(cfg["frequency_hz"]["min"]),
+        max_value=int(cfg["frequency_hz"]["max"]),
+        value=int(cfg["frequency_hz"]["default"]),
+        step=int(cfg["frequency_hz"]["step"]),
         key="pitch_playback_input",
     )
     amplitude = st.slider(
         "Playback amplitude",
-        min_value=0.05,
-        max_value=0.8,
-        value=0.35,
-        step=0.05,
+        min_value=float(cfg["playback_amplitude"]["min"]),
+        max_value=float(cfg["playback_amplitude"]["max"]),
+        value=float(cfg["playback_amplitude"]["default"]),
+        step=float(cfg["playback_amplitude"]["step"]),
     )
     st.audio(single_tone_wav(frequency_hz=frequency_hz, amplitude=amplitude), format="audio/wav")
     st.caption(f"Current test tone: {format_frequency_hz(int(frequency_hz))}")
@@ -64,17 +68,17 @@ with st.container(border=True):
     col_1, col_2 = st.columns(2)
     lowest_audible = col_1.number_input(
         "Lowest audible frequency (Hz)",
-        min_value=20,
-        max_value=20000,
-        value=20,
-        step=1,
+        min_value=int(cfg["frequency_hz"]["min"]),
+        max_value=int(cfg["frequency_hz"]["max"]),
+        value=int(cfg["frequency_hz"]["min"]),
+        step=int(cfg["frequency_hz"]["step"]),
     )
     highest_audible = col_2.number_input(
         "Highest audible frequency (Hz)",
-        min_value=20,
-        max_value=20000,
+        min_value=int(cfg["frequency_hz"]["min"]),
+        max_value=int(cfg["frequency_hz"]["max"]),
         value=int(frequency_hz),
-        step=1,
+        step=int(cfg["frequency_hz"]["step"]),
     )
     notes = st.text_area(
         "Notes",
