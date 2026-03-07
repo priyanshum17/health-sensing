@@ -52,6 +52,19 @@ uv run streamlit run app.py
 
 For OS-specific setup and troubleshooting, see [docs/install.md](docs/install.md).
 
+### Windows note about `make`
+
+`make` commands are commonly available on Unix-like systems but may be missing in
+standard Windows CMD/PowerShell environments.
+
+If `make run` fails on Windows, either:
+
+- use the manual `uv` commands above, or
+- install GNU `make` via Chocolatey/Scoop, or
+- run from Git Bash if `make` is available there.
+
+Detailed steps are in [docs/install.md](docs/install.md).
+
 ## Project Structure
 
 ```text

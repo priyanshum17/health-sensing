@@ -70,15 +70,62 @@ uv python install 3.11
 
 Use PowerShell in the project directory.
 
-### 1. `make` is not available
+### 1. `make` may not be available in CMD/PowerShell
 
-Windows commonly does not include `make`. Use manual commands:
+`make` is typically preinstalled on Unix-like systems, but not on standard Windows shells.
+If `make run` fails, use one of the options below.
+
+Option A: run the app without `make` (works everywhere on Windows):
 
 ```powershell
 uv python install 3.11
 uv sync
 uv run streamlit run app.py
 ```
+
+Option B: install GNU `make` with Chocolatey:
+
+1. Install Chocolatey from: https://chocolatey.org/install
+2. Open an elevated PowerShell or Command Prompt (Run as Administrator)
+3. Install make:
+
+```powershell
+choco install make
+```
+
+4. Restart terminal and verify:
+
+```powershell
+make -v
+```
+
+Option C: install GNU `make` with Scoop:
+
+1. Install Scoop from: https://scoop.sh
+2. In PowerShell:
+
+```powershell
+scoop bucket add main
+scoop install main/make
+```
+
+3. Restart terminal and verify:
+
+```powershell
+make -v
+```
+
+Option D: use Git Bash (includes GNU tooling in many setups):
+
+1. Install Git for Windows: https://gitforwindows.org
+2. Open **Git Bash** (instead of CMD/PowerShell)
+3. Verify:
+
+```bash
+make -v
+```
+
+If `make` is still unavailable in Git Bash, use Option A manual commands.
 
 ### 2. `uv` is not recognized
 
