@@ -1,14 +1,14 @@
-# Installation Guide
+# Installation and Troubleshooting
 
-This guide covers installation on macOS and Windows, including common fixes.
+This guide focuses on reliable setup and fast recovery when something fails.
 
 ## Prerequisites
 
 - Python 3.11 or newer
-- Internet access for dependency installation
+- Internet connection for dependency resolution
 - Terminal access (`Terminal` on macOS, `PowerShell` on Windows)
 
-## Standard Installation (Recommended)
+## Standard Setup
 
 From the project root:
 
@@ -16,170 +16,160 @@ From the project root:
 make run
 ```
 
-This performs setup and starts Streamlit at `http://localhost:8501`.
+This command installs prerequisites (via `uv`) and starts Streamlit at
+`http://localhost:8501`.
 
-## Manual Installation with `uv`
+## Windows: If `make` Does Not Work
 
-If you do not want to use `make`:
+Use this fallback flow directly in PowerShell:
 
-```sh
+```powershell
 uv python install 3.11
+$env:UV_CACHE_DIR = ".uv-cache"
 uv sync
 uv run streamlit run app.py
 ```
 
-## macOS Setup Notes
-
-### 1. Xcode Command Line Tools missing
-
-If build tools are missing:
-
-```sh
-xcode-select --install
-```
-
-### 2. `uv` command not found after install
-
-Add common install paths to your shell profile (`~/.zshrc`):
-
-```sh
-export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
-```
-
-Then reload your shell:
-
-```sh
-source ~/.zshrc
-```
-
-### 3. Python version mismatch
-
-Check version:
-
-```sh
-python3 --version
-```
-
-If needed, explicitly install 3.11:
-
-```sh
-uv python install 3.11
-```
-
-## Windows Setup Notes
-
-Use PowerShell in the project directory.
-
-### 1. `make` may not be available in CMD/PowerShell
-
-`make` is typically preinstalled on Unix-like systems, but not on standard Windows shells.
-If `make run` fails, use one of the options below.
-
-Option A: run the app without `make` (works everywhere on Windows):
-
-```powershell
-uv python install 3.11
-uv sync
-uv run streamlit run app.py
-```
-
-Option B: install GNU `make` with Chocolatey:
-
-1. Install Chocolatey from: https://chocolatey.org/install
-2. Open an elevated PowerShell or Command Prompt (Run as Administrator)
-3. Install make:
-
-```powershell
-choco install make
-```
-
-4. Restart terminal and verify:
-
-```powershell
-make -v
-```
-
-Option C: install GNU `make` with Scoop:
-
-1. Install Scoop from: https://scoop.sh
-2. In PowerShell:
-
-```powershell
-scoop bucket add main
-scoop install main/make
-```
-
-3. Restart terminal and verify:
-
-```powershell
-make -v
-```
-
-Option D: use Git Bash (includes GNU tooling in many setups):
-
-1. Install Git for Windows: https://gitforwindows.org
-2. Open **Git Bash** (instead of CMD/PowerShell)
-3. Verify:
-
-```bash
-make -v
-```
-
-If `make` is still unavailable in Git Bash, use Option A manual commands.
-
-### 2. `uv` is not recognized
-
-Install `uv` from the official installer and reopen PowerShell:
-
-- https://docs.astral.sh/uv/getting-started/installation/
-
-### 3. Execution policy blocks scripts
-
-If PowerShell blocks local scripts:
-
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-```
-
-Then restart PowerShell.
-
-### 4. Port 8501 already in use
-
-Run Streamlit on a different port:
+If port `8501` is occupied:
 
 ```powershell
 uv run streamlit run app.py --server.port 8502
 ```
 
-## Common Troubleshooting
+## Manual Setup (Any OS)
 
-### Dependency install fails
+Use this when you do not want to use Make:
 
-- Confirm network access
-- Delete and recreate environment:
+```sh
+uv python install 3.11
+UV_CACHE_DIR=.uv-cache uv sync
+UV_CACHE_DIR=.uv-cache uv run streamlit run app.py
+```
+
+## Platform-Specific Notes
+
+### macOS
+
+If command line tools are missing:
+
+```sh
+xcode-select --install
+```
+
+If `uv` is not in PATH, add this to `~/.zshrc`:
+
+```sh
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+```
+
+Then reload:
+
+```sh
+source ~/.zshrc
+```
+
+### Windows
+
+If execution policy blocks scripts:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+If you want to install `make`, use one of these:
+
+- Chocolatey: `choco install make`
+- Scoop: `scoop install main/make`
+- Git Bash (if already installed)
+
+## Symptom-Based Troubleshooting
+
+### `make` command not found
+
+Cause: no GNU Make in current shell.  
+Fix: use the Windows fallback block above, or install `make`.
+
+### `uv` command not found
+
+Cause: `uv` not installed or not on PATH.  
+Fix:
+
+- Install `uv`: https://docs.astral.sh/uv/getting-started/installation/
+- Restart terminal
+- Re-run commands
+
+### Permission error on uv cache path
+
+Cause: default cache directory blocked by environment policy.  
+Fix: force local cache directory:
+
+```sh
+UV_CACHE_DIR=.uv-cache uv sync
+UV_CACHE_DIR=.uv-cache uv run streamlit run app.py
+```
+
+PowerShell variant:
+
+```powershell
+$env:UV_CACHE_DIR = ".uv-cache"
+uv sync
+uv run streamlit run app.py
+```
+
+### Python version mismatch
+
+Check:
+
+```sh
+python --version
+```
+
+Install required version:
+
+```sh
+uv python install 3.11
+```
+
+### Streamlit starts but app page is blank
+
+Fix sequence:
+
+1. Check terminal for import/runtime errors.
+2. Hard refresh browser (`Ctrl+Shift+R` or `Cmd+Shift+R`).
+3. Restart Streamlit process.
+
+### Audio does not play
+
+Fix sequence:
+
+1. Verify OS output device.
+2. Verify browser tab is not muted.
+3. Try a different browser.
+
+### Dependency installation fails
+
+Fix sequence:
+
+1. Confirm network access.
+2. Remove environment and reinstall:
 
 ```sh
 make clean
 make run
 ```
 
-### Streamlit launches but page is blank
+If Make is unavailable:
 
-- Check terminal logs for Python errors
-- Hard refresh browser (`Ctrl+Shift+R` / `Cmd+Shift+R`)
-- Restart Streamlit process
+```sh
+rm -rf .venv
+UV_CACHE_DIR=.uv-cache uv sync
+```
 
-### Audio does not play in hearing tests
+## Reporting Issues
 
-- Confirm system output device is correct
-- Disable browser tab mute
-- Try another browser (Chrome/Edge/Safari)
-
-## Getting Help
-
-When reporting installation issues, include:
+When opening an issue, include:
 
 - OS and version
 - Python version
-- Exact command run
-- Full terminal error output
+- full command run
+- full terminal output

@@ -1,122 +1,107 @@
 # Health Sensing
 
-A Streamlit application for running six standardized human sensory experiments across vision and hearing.
+Health Sensing is a Streamlit application for running vision and hearing
+psychophysics exercises in a structured lab flow.
 
-## Overview
-
-This project helps users measure and record sensing limits using guided, page-by-page workflows.
+## What This Repo Contains
 
 Implemented experiment pages:
 
-- Contrast sensitivity (Pelli-style)
+- Contrast sensitivity (Pelli-style progression)
 - Visual resolution (Tumbling E)
-- Pitch frequency range
+- Pitch frequency range screening
 - Sound gap detection (3AFC adaptive)
 - Amplitude discrimination (3AFC adaptive)
 - Pitch discrimination threshold (3AFC adaptive)
 
-Each experiment page includes:
+## How The App Works
 
-- Step-by-step instructions
-- Interactive controls for running the test
-- Calculated metrics where applicable
-- A structured result-saving section
+- `app.py` is the multipage home screen and experiment launcher.
+- Each file in `pages/` is one experiment workflow.
+- Test parameters are centralized in `config/test_config.json`.
+- Shared logic modules in `utils/`:
+- `ui.py`: shared page layout and navigation components
+- `adaptive_3afc.py`: generic adaptive staircase state/update logic
+- `three_afc.py`: reusable 3AFC page interaction/feedback/plot helpers
+- `audio_tools.py`: WAV generation for tones and noise bursts
+- `test_config.py`: cached loader for JSON config
+
+For a deeper walkthrough of runtime flow and module responsibilities, see
+[docs/app_logic.md](docs/app_logic.md).
 
 ## Requirements
 
 - Python 3.11+
-- `uv` package manager (recommended; auto-installed via `make`)
+- `uv` package manager
 
-## Installation
-
-### Quick start
+## Quick Start
 
 ```sh
-# Clone and enter project
 git clone https://github.com/priyanshum17/healthsensing
 cd healthsensing
-
-# Install dependencies and run app
 make run
 ```
 
-Then open: `http://localhost:8501`
+Open `http://localhost:8501`.
 
-### Manual setup (without Makefile)
+## Windows Fallback (No `make`)
 
-```sh
+If `make` is not available or fails in PowerShell/CMD, run:
+
+```powershell
 uv python install 3.11
+$env:UV_CACHE_DIR = ".uv-cache"
 uv sync
 uv run streamlit run app.py
 ```
 
-For OS-specific setup and troubleshooting, see [docs/install.md](docs/install.md).
+This is the supported fallback path for Windows users who cannot run Make
+commands.
 
-### Windows note about `make`
+## Developer Commands
 
-`make` commands are commonly available on Unix-like systems but may be missing in
-standard Windows CMD/PowerShell environments.
+- `make setup`: install Python and dependencies
+- `make run`: launch Streamlit app
+- `make lint`: run Ruff checks
+- `make test`: run pytest suite
+- `make clean`: remove local environment artifacts
 
-If `make run` fails on Windows, either:
-
-- use the manual `uv` commands above, or
-- install GNU `make` via Chocolatey/Scoop, or
-- run from Git Bash if `make` is available there.
-
-Detailed steps are in [docs/install.md](docs/install.md).
-
-## Project Structure
+## Repository Structure
 
 ```text
 healthsensing/
-  app.py                     # Homepage with experiment tiles and objective summary
-  pages/                     # Individual experiment pages
-    greyscale_resolution.py
-    smallest_noticeable_size.py
-    pitch_frequency_range.py
-    sound_gap_detection.py
+  app.py
+  pages/
     amplitude_threshold.py
+    greyscale_resolution.py
+    pitch_frequency_range.py
     pitch_threshold.py
-  utils/                     # Shared helpers
-    ui.py                    # Shared UI building blocks (tiles, headers, nav buttons)
-    audio_tools.py           # WAV audio generation for hearing experiments
-    adaptive_3afc.py         # Shared 3AFC adaptive staircase logic
-    three_afc.py             # Shared 3AFC page interaction and plotting helpers
-  .streamlit/config.toml     # Streamlit theme/runtime config
-  pyproject.toml             # Python and dependency metadata
-  Makefile                   # Setup/run/clean shortcuts
+    smallest_noticeable_size.py
+    sound_gap_detection.py
+  utils/
+    adaptive_3afc.py
+    audio_tools.py
+    test_config.py
+    three_afc.py
+    ui.py
+  config/
+    test_config.json
   docs/
-    install.md               # Detailed installation and troubleshooting
-    assignment.md            # Assignment requirements/specification
+    app_logic.md
+    assignment.md
+    install.md
+  tests/
 ```
 
-## Running the App
+## Troubleshooting
 
-```sh
-make run
-```
+Start with [docs/install.md](docs/install.md). It includes:
 
-This command:
-
-1. Ensures `uv` is installed
-2. Ensures Python 3.11 is available
-3. Syncs dependencies into `.venv`
-4. Starts Streamlit using `app.py`
-
-## Available Make Targets
-
-- `make setup` - install Python and dependencies
-- `make run` - start the Streamlit app
-- `make lint` - run Ruff lint checks
-- `make test` - run test suite
-- `make clean` - remove local environment/artifacts
+- OS-specific install flows
+- failure-mode troubleshooting by error symptom
+- command-level recovery steps
 
 ## Notes
 
-- Saved experiment results are currently stored in Streamlit session state (per running session).
-- The app is optimized for local execution.
-
-## Documentation
-
-- Installation and troubleshooting: [docs/install.md](docs/install.md)
-- Assignment details: [docs/assignment.md](docs/assignment.md)
+- The app is intended for local use.
+- Runtime state is session-based (stored in Streamlit session state).

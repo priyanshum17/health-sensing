@@ -64,10 +64,15 @@ def e_symbol(size_px: int, orientation: str) -> str:
     return (
         "<div style='display:flex; justify-content:center; align-items:center; "
         "background:#ffffff; border:1px solid #d0d0d0; border-radius:8px; padding:0.3rem;'>"
-        # LAB NOTE: Keep this sans-serif so the optotype does not include serif end strokes.
-        f"<div style='font-size:{size_px}px; font-family:\"Helvetica Neue\", Arial, sans-serif; "
-        "font-weight:800; "
-        f"color:#101010; line-height:1; transform:rotate({rotation}deg);'>E</div></div>"
+        # LAB NOTE: SVG geometry enforces t=d (stroke thickness equals spacing) on a 5x5 grid.
+        f"<svg width='{size_px}' height='{size_px}' viewBox='0 0 5 5' "
+        "xmlns='http://www.w3.org/2000/svg' style='display:block; shape-rendering:crispEdges;'>"
+        f"<g transform='rotate({rotation} 2.5 2.5)' fill='#101010'>"
+        "<rect x='0' y='0' width='1' height='5'/>"
+        "<rect x='0' y='0' width='5' height='1'/>"
+        "<rect x='0' y='2' width='5' height='1'/>"
+        "<rect x='0' y='4' width='5' height='1'/>"
+        "</g></svg></div>"
     )
 
 
