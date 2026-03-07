@@ -1,14 +1,11 @@
 import math
 import random
-import statistics
 
 import streamlit as st
 
 from utils.experiment_layout import (
     render_instructions,
     render_page_header,
-    render_saved_result,
-    save_result,
 )
 from utils.test_config import load_test_config
 
@@ -27,12 +24,13 @@ render_instructions(
     "How To Run This Test",
     (
         "You will see one Tumbling E at a time. Choose its orientation. "
-        "Correct responses make the next E smaller; incorrect responses make it larger."
+        "Correct responses make the next E smaller; incorrect responses make it larger. "
+        "The smallest rendered optotype is 4 px, so if that remains easy, increase viewing distance."
     ),
     [
         "Keep viewing distance fixed during the run.",
         "Answer every trial with one of: Up, Down, Left, Right.",
-        "Test stops automatically after 8 reversals.",
+        "If the smallest E is still obvious, move farther from the display and restart.",
     ],
 )
 
@@ -48,11 +46,7 @@ def init_tumbling_state() -> dict:
         st.session_state[key] = {
             "size_index": 0,
             "trial_orientation": random.choice(ORIENTATIONS),
-            "last_direction": None,
-            "reversals": [],
             "history": [],
-            "max_reversals": int(cfg["max_reversals"]),
-            "finished": False,
         }
     return st.session_state[key]
 
@@ -101,6 +95,7 @@ with st.container(border=True):
     )
     mm_per_px = float(screen_width_mm) / float(screen_width_px)
     st.caption(f"Pixel pitch: {mm_per_px:.4f} mm/px")
+    st.caption("Smallest E size in this app is 4 px. Increase viewing distance to push difficulty when needed.")
 
 
 def mar_arcmin_for_size(size_px: int, mm_per_px: float, distance_cm: float) -> float:
@@ -119,8 +114,7 @@ current_mar = mar_arcmin_for_size(current_size_px, mm_per_px, distance_cm)
 with st.container(border=True):
     st.subheader("Adaptive Tumbling E Trial")
     st.caption(
-        f"Current size: {current_size_px}px | Current MAR: {current_mar:.2f} arcmin | "
-        f"Reversals: {len(state['reversals'])}/{state['max_reversals']}"
+        f"Current size: {current_size_px}px | Current MAR: {current_mar:.2f} arcmin"
     )
     st.markdown(e_symbol(current_size_px, current_orientation), unsafe_allow_html=True)
 
@@ -136,22 +130,14 @@ with st.container(border=True):
     submitted = st.button(
         "Submit Response",
         type="primary",
-        use_container_width=True,
-        disabled=state["finished"],
+        width="stretch",
     )
-    if submitted and not state["finished"]:
+    if submitted:
         is_correct = response == current_orientation
         if is_correct:
             next_index = min(current_index + 1, len(SIZE_LEVELS_PX) - 1)
-            direction = "down" if next_index != current_index else None
         else:
             next_index = max(current_index - 1, 0)
-            direction = "up" if next_index != current_index else None
-
-        if direction and state["last_direction"] and direction != state["last_direction"]:
-            state["reversals"].append(current_size_px)
-        if direction:
-            state["last_direction"] = direction
 
         state["history"].append(
             {
@@ -167,66 +153,25 @@ with st.container(border=True):
         state["size_index"] = next_index
         state["trial_orientation"] = next_orientation(current_orientation)
         st.session_state[feedback_key] = "correct" if is_correct else "incorrect"
-        if len(state["reversals"]) >= state["max_reversals"]:
-            state["finished"] = True
         st.rerun()
-
-if state["finished"]:
-    with st.container(border=True):
-        st.subheader("Staircase Complete")
-        st.success("Test finished at 8 reversals.")
-        reversal_mars = [mar_arcmin_for_size(px, mm_per_px, distance_cm) for px in state["reversals"]]
-        estimated_mar = (
-            statistics.mean(reversal_mars[-4:])
-            if len(reversal_mars) >= 4
-            else mar_arcmin_for_size(SIZE_LEVELS_PX[state["size_index"]], mm_per_px, distance_cm)
-        )
-        col_1, col_2, col_3 = st.columns(3)
-        col_1.metric("Total Trials", f"{len(state['history'])}")
-        col_2.metric("Reversals", f"{len(state['reversals'])}")
-        col_3.metric("Estimated MAR", f"{estimated_mar:.2f} arcmin")
 
 with st.container(border=True):
     st.subheader("Trial Log")
     history = state["history"]
     if history:
-        st.dataframe(history, use_container_width=True, hide_index=True)
+        st.dataframe(history, width="stretch", hide_index=True)
         wrong_only = [row for row in history if row["Correct"] == "No"]
         st.markdown("**Incorrect Responses**")
         if wrong_only:
-            st.dataframe(wrong_only, use_container_width=True, hide_index=True)
+            st.dataframe(wrong_only, width="stretch", hide_index=True)
         else:
             st.caption("No incorrect responses yet.")
     else:
         st.caption("No responses yet.")
 
 with st.container(border=True):
-    st.subheader("Save Result")
-    estimated_mar = mar_arcmin_for_size(SIZE_LEVELS_PX[state["size_index"]], mm_per_px, distance_cm)
-    if state["reversals"]:
-        reversal_mars = [mar_arcmin_for_size(px, mm_per_px, distance_cm) for px in state["reversals"]]
-        estimated_mar = statistics.mean(reversal_mars[-4:]) if len(reversal_mars) >= 4 else estimated_mar
-    notes = st.text_area(
-        "Notes",
-        placeholder="Distance control, fatigue, monitor setup, retries, etc.",
-    )
-    if st.button("Save Result", type="primary", use_container_width=True):
-        save_result(
-            "size",
-            {
-                "Method": "Tumbling E Staircase",
-                "Viewing Distance (cm)": f"{distance_cm:.1f}",
-                "Pixel Pitch (mm/px)": f"{mm_per_px:.4f}",
-                "Total Trials": f"{len(state['history'])}",
-                "Reversals": f"{len(state['reversals'])}",
-                "Estimated MAR (arcmin)": f"{estimated_mar:.2f}",
-                "Notes": notes.strip() or "None",
-            },
-        )
-        st.success("Visual resolution result saved.")
-    if st.button("Restart Staircase", use_container_width=True):
+    st.subheader("Test Controls")
+    if st.button("Restart Staircase", width="stretch"):
         st.session_state.pop("tumbling_e_state", None)
         st.session_state.pop(feedback_key, None)
         st.rerun()
-
-render_saved_result("size")

@@ -4,8 +4,6 @@ from utils.audio_tools import single_tone_wav
 from utils.experiment_layout import (
     render_instructions,
     render_page_header,
-    render_saved_result,
-    save_result,
 )
 from utils.test_config import load_test_config
 
@@ -62,42 +60,3 @@ with st.container(border=True):
     )
     st.audio(single_tone_wav(frequency_hz=frequency_hz, amplitude=amplitude), format="audio/wav")
     st.caption(f"Current test tone: {format_frequency_hz(int(frequency_hz))}")
-
-with st.container(border=True):
-    st.subheader("Save Result")
-    col_1, col_2 = st.columns(2)
-    lowest_audible = col_1.number_input(
-        "Lowest audible frequency (Hz)",
-        min_value=int(cfg["frequency_hz"]["min"]),
-        max_value=int(cfg["frequency_hz"]["max"]),
-        value=int(cfg["frequency_hz"]["min"]),
-        step=int(cfg["frequency_hz"]["step"]),
-    )
-    highest_audible = col_2.number_input(
-        "Highest audible frequency (Hz)",
-        min_value=int(cfg["frequency_hz"]["min"]),
-        max_value=int(cfg["frequency_hz"]["max"]),
-        value=int(frequency_hz),
-        step=int(cfg["frequency_hz"]["step"]),
-    )
-    notes = st.text_area(
-        "Notes",
-        placeholder="Headphone/speaker used, room noise, retries, etc.",
-    )
-    if st.button("Save Result", type="primary", use_container_width=True):
-        if highest_audible < lowest_audible:
-            st.error("Highest audible frequency must be greater than or equal to lowest.")
-        else:
-            bandwidth = highest_audible - lowest_audible
-            save_result(
-                "pitch",
-                {
-                    "Lowest Audible": format_frequency_hz(int(lowest_audible)),
-                    "Highest Audible": format_frequency_hz(int(highest_audible)),
-                    "Range Width": format_frequency_hz(int(bandwidth)),
-                    "Notes": notes.strip() or "None",
-                },
-            )
-            st.success("Pitch range result saved.")
-
-render_saved_result("pitch")

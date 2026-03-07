@@ -6,8 +6,6 @@ import streamlit as st
 from utils.experiment_layout import (
     render_instructions,
     render_page_header,
-    render_saved_result,
-    save_result,
 )
 from utils.test_config import load_test_config
 
@@ -115,7 +113,7 @@ with st.container(border=True):
     submitted = st.button(
         "Submit Response",
         type="primary",
-        use_container_width=True,
+        width="stretch",
         disabled=finished,
     )
     if submitted and not finished:
@@ -159,31 +157,14 @@ with st.container(border=True):
     st.subheader("Trial Log")
     history = st.session_state["greyscale_pelli_history"]
     if history:
-        st.dataframe(history, use_container_width=True, hide_index=True)
+        st.dataframe(history, width="stretch", hide_index=True)
     else:
         st.caption("No responses yet.")
 
 with st.container(border=True):
-    st.subheader("Save Result")
-    notes = st.text_area(
-        "Notes",
-        placeholder="Screen brightness, viewing distance, ambient light, retries, etc.",
-    )
-    if st.button("Save Result", type="primary", use_container_width=True):
-        save_result(
-            "greyscale",
-            {
-                "Method": "Pelli-style single-letter progression",
-                "Log Step": f"{log_step:.2f}",
-                "Estimated Contrast Threshold (%)": f"{threshold_pct:.2f}",
-                "Estimated log Contrast Sensitivity": f"{log_cs:.2f}",
-                "Total Trials": f"{len(st.session_state['greyscale_pelli_history'])}",
-                "Notes": notes.strip() or "None",
-            },
-        )
-        st.success("Contrast sensitivity result saved.")
+    st.subheader("Test Controls")
 
-    if st.button("Restart Test", use_container_width=True):
+    if st.button("Restart Test", width="stretch"):
         for key in [
             "greyscale_pelli_index",
             "greyscale_pelli_letter",
@@ -194,5 +175,3 @@ with st.container(border=True):
         ]:
             st.session_state.pop(key, None)
         st.rerun()
-
-render_saved_result("greyscale")

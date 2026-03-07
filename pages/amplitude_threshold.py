@@ -14,8 +14,6 @@ from utils.audio_tools import single_tone_wav
 from utils.experiment_layout import (
     render_instructions,
     render_page_header,
-    render_saved_result,
-    save_result,
 )
 from utils.test_config import load_test_config
 
@@ -110,7 +108,7 @@ with st.container(border=True):
     submitted = st.button(
         "Submit Response",
         type="primary",
-        use_container_width=True,
+        width="stretch",
         disabled=adaptive["finished"],
     )
     if submitted and not adaptive["finished"]:
@@ -179,27 +177,8 @@ if adaptive["finished"]:
             st.info("Matplotlib plot unavailable in this environment.")
 
 with st.container(border=True):
-    st.subheader("Save Result")
-    notes = st.text_area(
-        "Notes",
-        placeholder="Environment noise, confidence, retries, discomfort limits, etc.",
-    )
-    if st.button("Save Result", type="primary", use_container_width=True):
-        save_result(
-            "amplitude",
-            {
-                "Adaptive Method": "3AFC 2-down/1-up",
-                "Estimated Threshold (dB)": f"{estimated_db:.2f}",
-                "Reference Frequency (Hz)": f"{reference_hz}",
-                "Reference Amplitude": f"{baseline_amplitude:.2f}",
-                "Total Trials": f"{len(adaptive['history'])}",
-                "Notes": notes.strip() or "None",
-            },
-        )
-        st.success("Amplitude threshold result saved.")
-    if st.button("Restart Adaptive Test", use_container_width=True):
+    st.subheader("Test Controls")
+    if st.button("Restart Adaptive Test", width="stretch"):
         reset_adaptive_state("amplitude")
         st.session_state.pop(feedback_key, None)
         st.rerun()
-
-render_saved_result("amplitude")

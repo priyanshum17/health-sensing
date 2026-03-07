@@ -3,7 +3,7 @@
     "letters": "CDHKNORSVZ",
     "background_rgb": 255,
     "preview": {
-      "rows": 12,
+      "rows": 18,
       "log_contrast_step": 0.15,
       "seed": 1988
     },
@@ -18,7 +18,7 @@
     }
   },
   "tumbling_e": {
-    "size_levels_px": [140, 112, 90, 72, 58, 46, 36, 30, 24, 20, 16, 12, 10, 8, 6, 4],
+    "size_levels_px": [140, 112, 90, 72, 58, 46, 36, 30, 24, 20, 16, 14, 12, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
     "max_reversals": 8,
     "setup": {
       "distance_cm": {
@@ -62,7 +62,7 @@
       "max_level": 120.0,
       "initial_step": 6.0,
       "min_step": 0.25,
-      "max_reversals": 8,
+      "max_reversals": 6,
       "down": 2
     },
     "playback": {
@@ -82,7 +82,7 @@
       "max_level": 20.0,
       "initial_step": 1.0,
       "min_step": 0.1,
-      "max_reversals": 8,
+      "max_reversals": 6,
       "down": 2
     },
     "reference_amplitude": {
@@ -106,7 +106,7 @@
       "max_level": 1000.0,
       "initial_step": 20.0,
       "min_step": 1.0,
-      "max_reversals": 8,
+      "max_reversals": 6,
       "down": 2
     },
     "reference_frequency_hz": {

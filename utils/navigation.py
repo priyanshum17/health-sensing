@@ -12,7 +12,7 @@ def back_to_home_button(
     if st.button(
         button_label,
         key=key,
-        use_container_width=use_container_width,
+        width="stretch" if use_container_width else "content",
         type="primary",
     ):
         st.switch_page("app.py")
@@ -28,7 +28,7 @@ def open_test_button(
     if st.button(
         label,
         key=key,
-        use_container_width=use_container_width,
+        width="stretch" if use_container_width else "content",
         type="primary",
     ):
         st.switch_page(page_path)

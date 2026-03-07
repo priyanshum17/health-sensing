@@ -39,6 +39,7 @@ With your head upright and fixed:
 Display several lines with equal thickness and spacing (`t = d`).
 
 - Increase distance between eyes and screen until exact line count is no longer distinguishable.
+- If the smallest on-screen target is still easy to identify, move farther from the display and continue.
 - Record that threshold distance.
 - Use thickness and distance to calculate angular resolution.
 - Report in arc minutes (`1 arcmin = 1/60 degree`).
