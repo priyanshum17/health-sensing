@@ -1,5 +1,6 @@
 import streamlit as st
-from utils.home import render_experiment_tile
+
+from utils.ui import render_experiment_tile
 
 st.set_page_config(
     page_title="Human Sensory Limits",
@@ -31,7 +32,9 @@ with st.container(border=True):
     st.subheader("Sight Experiments")
     render_experiment_tile(
         title="Contrast Sensitivity (Pelli-Style)",
-        description="Estimate log contrast sensitivity using a standardized letter-contrast progression.",
+        description=(
+            "Estimate log contrast sensitivity using a standardized letter-contrast progression."
+        ),
         page_path="pages/greyscale_resolution.py",
         key="open_greyscale",
     )
@@ -52,7 +55,9 @@ with st.container(border=True):
     )
     render_experiment_tile(
         title="Sound Gap Detection (3AFC Adaptive)",
-        description="Find temporal gap threshold with a 3-alternative forced-choice adaptive staircase.",
+        description=(
+            "Find temporal gap threshold with a 3-alternative forced-choice adaptive staircase."
+        ),
         page_path="pages/sound_gap_detection.py",
         key="open_gap",
     )

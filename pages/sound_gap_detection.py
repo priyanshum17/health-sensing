@@ -1,21 +1,23 @@
-import statistics
-
 import streamlit as st
 
 from utils.adaptive_3afc import (
-    advance_trial,
     estimate_threshold,
     get_or_create_trial,
     init_adaptive_state,
-    register_response,
     reset_adaptive_state,
 )
 from utils.audio_tools import noise_burst_with_gap_wav
-from utils.experiment_layout import (
+from utils.test_config import load_test_config
+from utils.three_afc import (
+    render_completion_summary,
+    render_feedback,
+    render_staircase_plot,
+    submit_3afc_response,
+)
+from utils.ui import (
     render_instructions,
     render_page_header,
 )
-from utils.test_config import load_test_config
 
 st.set_page_config(
     page_title="Sound Gap Detection Test",
@@ -87,11 +89,7 @@ with st.container(border=True):
 
 with st.container(border=True):
     st.subheader("Respond")
-    last_feedback = st.session_state.get(feedback_key)
-    if last_feedback == "correct":
-        st.success("Previous response: Correct.")
-    elif last_feedback == "incorrect":
-        st.error("Previous response: Incorrect.")
+    render_feedback(feedback_key)
     choice = st.radio("Which interval had the gap?", [1, 2, 3], horizontal=True)
     submitted = st.button(
         "Submit Response",
@@ -100,18 +98,14 @@ with st.container(border=True):
         disabled=adaptive["finished"],
     )
     if submitted and not adaptive["finished"]:
-        chosen_idx = int(choice) - 1
-        is_correct = chosen_idx == int(trial["target_index"])
-        register_response(
-            adaptive,
+        submit_3afc_response(
+            state_key="gap",
+            adaptive=adaptive,
+            trial=trial,
             level_used=current_gap_ms,
-            is_correct=is_correct,
-            chosen_index=chosen_idx,
-            target_index=int(trial["target_index"]),
+            selected_interval=int(choice),
+            feedback_key=feedback_key,
         )
-        advance_trial("gap")
-        st.session_state[feedback_key] = "correct" if is_correct else "incorrect"
-        st.rerun()
 
     estimated_gap = estimate_threshold(adaptive)
     st.metric("Estimated Gap Threshold (ms)", f"{estimated_gap:.2f}")
@@ -121,41 +115,14 @@ if adaptive["finished"]:
         st.subheader("Adaptive Test Complete")
         st.success("Staircase finished. Final estimate and statistics are shown below.")
         history = adaptive["history"]
-        total_trials = len(history)
-        accuracy = 100.0 * statistics.mean([1.0 if item["correct"] else 0.0 for item in history])
-        col_1, col_2, col_3 = st.columns(3)
-        col_1.metric("Total Trials", f"{total_trials}")
-        col_2.metric("Overall Accuracy", f"{accuracy:.1f}%")
-        col_3.metric("Reversals", f"{len(adaptive['reversals'])}")
-
-        try:
-            import matplotlib.pyplot as plt
-
-            # LAB NOTE: Students can rebuild this plot from adaptive["history"] manually.
-            trials = list(range(1, total_trials + 1))
-            levels = [float(item["level"]) for item in history]
-            correct = [bool(item["correct"]) for item in history]
-            colors = ["#2E7D32" if item else "#C62828" for item in correct]
-
-            fig, ax = plt.subplots(figsize=(8, 3.5))
-            ax.plot(trials, levels, color="#1565C0", linewidth=1.6, label="Gap Level")
-            ax.scatter(trials, levels, c=colors, s=25, alpha=0.9, label="Trial Response")
-            ax.axhline(
-                estimated_gap,
-                color="#6A1B9A",
-                linestyle="--",
-                linewidth=1.3,
-                label=f"Estimated Threshold {estimated_gap:.2f} ms",
-            )
-            ax.set_xlabel("Trial Number")
-            ax.set_ylabel("Gap (ms)")
-            ax.set_title("Gap Detection Adaptive Staircase")
-            ax.grid(alpha=0.25)
-            ax.legend(loc="best")
-            st.pyplot(fig)
-            plt.close(fig)
-        except Exception:
-            st.info("Matplotlib plot unavailable in this environment.")
+        render_completion_summary(adaptive, estimated_value=estimated_gap, value_label="ms")
+        render_staircase_plot(
+            history=history,
+            estimated_value=estimated_gap,
+            threshold_label="Estimated Threshold",
+            y_label="Gap (ms)",
+            title="Gap Detection Adaptive Staircase",
+        )
 
 with st.container(border=True):
     st.subheader("Test Controls")

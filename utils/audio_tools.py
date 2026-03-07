@@ -11,7 +11,17 @@ def _sine_samples(
     amplitude: float,
     sample_rate: int,
 ) -> bytes:
-    """Create 16-bit PCM sine wave samples."""
+    """Create 16-bit PCM sine-wave samples.
+
+    Args:
+        frequency_hz: Sine frequency in Hz.
+        duration_s: Clip duration in seconds.
+        amplitude: Linear amplitude in ``[0, 1]``.
+        sample_rate: Audio sample rate.
+
+    Returns:
+        Raw PCM frame bytes.
+    """
     sample_count = max(1, int(duration_s * sample_rate))
     clipped_amplitude = max(0.0, min(amplitude, 1.0))
     pcm = bytearray()
@@ -23,13 +33,29 @@ def _sine_samples(
 
 
 def _silence_samples(duration_s: float, sample_rate: int) -> bytes:
-    """Create 16-bit PCM silence samples."""
+    """Create 16-bit PCM silence samples.
+
+    Args:
+        duration_s: Duration in seconds.
+        sample_rate: Audio sample rate.
+
+    Returns:
+        Raw PCM frame bytes.
+    """
     sample_count = max(1, int(duration_s * sample_rate))
     return b"\x00\x00" * sample_count
 
 
 def _to_wav(pcm_frames: bytes, sample_rate: int) -> bytes:
-    """Wrap PCM frames into a WAV byte stream."""
+    """Wrap PCM frames into a WAV byte stream.
+
+    Args:
+        pcm_frames: Raw mono PCM frames.
+        sample_rate: Audio sample rate.
+
+    Returns:
+        WAV-encoded byte stream.
+    """
     buffer = io.BytesIO()
     with wave.open(buffer, "wb") as wav_file:
         wav_file.setnchannels(1)
@@ -45,7 +71,17 @@ def _noise_samples(
     sample_rate: int,
     seed: int | None = None,
 ) -> bytes:
-    """Create 16-bit PCM white noise samples."""
+    """Create 16-bit PCM white-noise samples.
+
+    Args:
+        duration_s: Clip duration in seconds.
+        amplitude: Linear amplitude in ``[0, 1]``.
+        sample_rate: Audio sample rate.
+        seed: Optional random seed for deterministic output.
+
+    Returns:
+        Raw PCM frame bytes.
+    """
     sample_count = max(1, int(duration_s * sample_rate))
     clipped_amplitude = max(0.0, min(amplitude, 1.0))
     rng = random.Random(seed)
@@ -62,7 +98,17 @@ def single_tone_wav(
     amplitude: float = 0.4,
     sample_rate: int = 44100,
 ) -> bytes:
-    """Generate a single-tone WAV clip."""
+    """Generate a single-tone WAV clip.
+
+    Args:
+        frequency_hz: Sine frequency in Hz.
+        duration_s: Clip duration in seconds.
+        amplitude: Linear amplitude in ``[0, 1]``.
+        sample_rate: Audio sample rate.
+
+    Returns:
+        WAV-encoded byte stream.
+    """
     frames = _sine_samples(frequency_hz, duration_s, amplitude, sample_rate)
     return _to_wav(frames, sample_rate)
 
@@ -75,7 +121,19 @@ def two_tone_gap_wav(
     tone_duration_s: float = 0.6,
     sample_rate: int = 44100,
 ) -> bytes:
-    """Generate two tones separated by a silence gap."""
+    """Generate a two-tone clip separated by a silence gap.
+
+    Args:
+        frequency_hz: Sine frequency in Hz.
+        gap_ms: Silence gap in milliseconds.
+        amplitude_1: Linear amplitude for the first tone.
+        amplitude_2: Linear amplitude for the second tone.
+        tone_duration_s: Duration of each tone in seconds.
+        sample_rate: Audio sample rate.
+
+    Returns:
+        WAV-encoded byte stream.
+    """
     gap_s = max(0.0, gap_ms / 1000.0)
     frames = b"".join(
         [
@@ -95,7 +153,18 @@ def noise_burst_with_gap_wav(
     sample_rate: int = 44100,
     seed: int | None = None,
 ) -> bytes:
-    """Generate one noise burst with a centered silence gap."""
+    """Generate a noise burst with an optional centered silence gap.
+
+    Args:
+        duration_s: Clip duration in seconds.
+        gap_ms: Silence gap in milliseconds.
+        amplitude: Linear noise amplitude in ``[0, 1]``.
+        sample_rate: Audio sample rate.
+        seed: Optional random seed for deterministic output.
+
+    Returns:
+        WAV-encoded byte stream.
+    """
     gap_s = max(0.0, gap_ms / 1000.0)
     if gap_s <= 0.0:
         return _to_wav(_noise_samples(duration_s, amplitude, sample_rate, seed), sample_rate)
@@ -106,7 +175,12 @@ def noise_burst_with_gap_wav(
         [
             _noise_samples(left_duration, amplitude, sample_rate, seed),
             _silence_samples(gap_s, sample_rate),
-            _noise_samples(right_duration, amplitude, sample_rate, None if seed is None else seed + 1),
+            _noise_samples(
+                right_duration,
+                amplitude,
+                sample_rate,
+                None if seed is None else seed + 1,
+            ),
         ]
     )
     return _to_wav(frames, sample_rate)

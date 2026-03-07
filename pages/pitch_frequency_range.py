@@ -1,11 +1,11 @@
 import streamlit as st
 
 from utils.audio_tools import single_tone_wav
-from utils.experiment_layout import (
+from utils.test_config import load_test_config
+from utils.ui import (
     render_instructions,
     render_page_header,
 )
-from utils.test_config import load_test_config
 
 st.set_page_config(
     page_title="Pitch Frequency Range Test",

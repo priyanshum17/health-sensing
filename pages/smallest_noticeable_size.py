@@ -3,11 +3,11 @@ import random
 
 import streamlit as st
 
-from utils.experiment_layout import (
+from utils.test_config import load_test_config
+from utils.ui import (
     render_instructions,
     render_page_header,
 )
-from utils.test_config import load_test_config
 
 st.set_page_config(
     page_title="Visual Resolution (Tumbling E Staircase)",
@@ -25,7 +25,8 @@ render_instructions(
     (
         "You will see one Tumbling E at a time. Choose its orientation. "
         "Correct responses make the next E smaller; incorrect responses make it larger. "
-        "The smallest rendered optotype is 4 px, so if that remains easy, increase viewing distance."
+        "The smallest rendered optotype is 4 px, so if that remains easy, increase "
+        "viewing distance."
     ),
     [
         "Keep viewing distance fixed during the run.",
@@ -64,7 +65,8 @@ def e_symbol(size_px: int, orientation: str) -> str:
         "<div style='display:flex; justify-content:center; align-items:center; "
         "background:#ffffff; border:1px solid #d0d0d0; border-radius:8px; padding:0.3rem;'>"
         # LAB NOTE: Keep this sans-serif so the optotype does not include serif end strokes.
-        f"<div style='font-size:{size_px}px; font-family:\"Helvetica Neue\", Arial, sans-serif; font-weight:800; "
+        f"<div style='font-size:{size_px}px; font-family:\"Helvetica Neue\", Arial, sans-serif; "
+        "font-weight:800; "
         f"color:#101010; line-height:1; transform:rotate({rotation}deg);'>E</div></div>"
     )
 
@@ -95,7 +97,10 @@ with st.container(border=True):
     )
     mm_per_px = float(screen_width_mm) / float(screen_width_px)
     st.caption(f"Pixel pitch: {mm_per_px:.4f} mm/px")
-    st.caption("Smallest E size in this app is 4 px. Increase viewing distance to push difficulty when needed.")
+    st.caption(
+        "Smallest E size in this app is 4 px. Increase viewing distance to push "
+        "difficulty when needed."
+    )
 
 
 def mar_arcmin_for_size(size_px: int, mm_per_px: float, distance_cm: float) -> float:
@@ -159,11 +164,11 @@ with st.container(border=True):
     st.subheader("Trial Log")
     history = state["history"]
     if history:
-        st.dataframe(history, width="stretch", hide_index=True)
+        st.dataframe(history, width="stretch", hide_index=True) # type: ignore
         wrong_only = [row for row in history if row["Correct"] == "No"]
         st.markdown("**Incorrect Responses**")
         if wrong_only:
-            st.dataframe(wrong_only, width="stretch", hide_index=True)
+            st.dataframe(wrong_only, width="stretch", hide_index=True) # type: ignore
         else:
             st.caption("No incorrect responses yet.")
     else:
@@ -171,7 +176,7 @@ with st.container(border=True):
 
 with st.container(border=True):
     st.subheader("Test Controls")
-    if st.button("Restart Staircase", width="stretch"):
+    if st.button("Restart Staircase", width="stretch"): # pyright: ignore[reportCallIssue]
         st.session_state.pop("tumbling_e_state", None)
         st.session_state.pop(feedback_key, None)
         st.rerun()

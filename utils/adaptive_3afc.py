@@ -16,7 +16,21 @@ def init_adaptive_state(
     max_reversals: int = 8,
     down: int = 2,
 ) -> dict[str, Any]:
-    """Create or fetch an adaptive 3AFC staircase state."""
+    """Create or fetch an adaptive 3AFC staircase state.
+
+    Args:
+        state_key: Namespace prefix for Streamlit session-state keys.
+        start_level: Initial stimulus level.
+        min_level: Lower bound for stimulus level.
+        max_level: Upper bound for stimulus level.
+        initial_step: Initial step size for level updates.
+        min_step: Minimum step size after reversal shrinkage.
+        max_reversals: Number of reversals required to finish.
+        down: Number of consecutive correct responses required to step down.
+
+    Returns:
+        Mutable adaptive staircase state dictionary.
+    """
     key = f"{state_key}_adaptive"
     if key not in st.session_state:
         st.session_state[key] = {
@@ -37,7 +51,14 @@ def init_adaptive_state(
 
 
 def get_or_create_trial(state_key: str) -> dict[str, int]:
-    """Return a trial descriptor for 3AFC (target index + seed)."""
+    """Return a trial descriptor for 3AFC.
+
+    Args:
+        state_key: Namespace prefix for session-state keys.
+
+    Returns:
+        Trial descriptor containing target interval index and random seed.
+    """
     key = f"{state_key}_trial"
     trial = st.session_state.get(key)
     if trial is None:
@@ -50,7 +71,11 @@ def get_or_create_trial(state_key: str) -> dict[str, int]:
 
 
 def advance_trial(state_key: str) -> None:
-    """Generate a new randomized trial."""
+    """Generate and persist the next randomized trial descriptor.
+
+    Args:
+        state_key: Namespace prefix for session-state keys.
+    """
     key = f"{state_key}_trial"
     previous = st.session_state.get(key, {})
     previous_target = previous.get("target_index")
@@ -65,7 +90,11 @@ def advance_trial(state_key: str) -> None:
 
 
 def reset_adaptive_state(state_key: str) -> None:
-    """Reset adaptive and trial states for one test."""
+    """Reset adaptive and trial state for one test namespace.
+
+    Args:
+        state_key: Namespace prefix for session-state keys.
+    """
     st.session_state.pop(f"{state_key}_adaptive", None)
     st.session_state.pop(f"{state_key}_trial", None)
 
@@ -78,7 +107,15 @@ def register_response(
     chosen_index: int,
     target_index: int,
 ) -> None:
-    """Apply 2-down/1-up adaptive update for one 3AFC response."""
+    """Apply one 2-down/1-up update for a 3AFC response.
+
+    Args:
+        state: Adaptive staircase state dictionary.
+        level_used: Stimulus level used in the current trial.
+        is_correct: Whether the selected interval was correct.
+        chosen_index: Selected interval index (0-based).
+        target_index: Correct interval index (0-based).
+    """
     if state["finished"]:
         return
 
@@ -118,7 +155,15 @@ def register_response(
 
 
 def estimate_threshold(state: dict[str, Any], tail_count: int = 4) -> float:
-    """Estimate threshold from recent reversal points when available."""
+    """Estimate threshold from recent reversal points.
+
+    Args:
+        state: Adaptive staircase state dictionary.
+        tail_count: Number of trailing reversals to average.
+
+    Returns:
+        Estimated threshold level.
+    """
     reversals = state.get("reversals", [])
     if len(reversals) >= tail_count:
         return float(statistics.mean(reversals[-tail_count:]))

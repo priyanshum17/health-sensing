@@ -3,11 +3,11 @@ import random
 
 import streamlit as st
 
-from utils.experiment_layout import (
+from utils.test_config import load_test_config
+from utils.ui import (
     render_instructions,
     render_page_header,
 )
-from utils.test_config import load_test_config
 
 st.set_page_config(
     page_title="Contrast Sensitivity Test",
@@ -76,10 +76,10 @@ with st.container(border=True):
         fg = int(max(0, min(255, bg * (1.0 - contrast))))
         triplet = "".join(rng.choice(letters) for _ in range(3))
         html_rows.append(
-            (
+            
                 f"<div style='letter-spacing:0.45rem; font-size:1.9rem; font-weight:700; "
                 f"color:rgb({fg},{fg},{fg}); margin:0.2rem 0;'>{triplet}</div>"
-            )
+            
         )
     st.markdown(
         (
@@ -139,7 +139,9 @@ with st.container(border=True):
                 st.session_state["greyscale_pelli_letter"] = random.choice(letters)
         else:
             if trial_index > 0:
-                st.session_state["greyscale_pelli_threshold_pct"] = contrast_levels_pct[trial_index - 1]
+                st.session_state["greyscale_pelli_threshold_pct"] = contrast_levels_pct[
+                    trial_index - 1
+                ]
             st.session_state["greyscale_pelli_finished"] = True
         st.rerun()
 

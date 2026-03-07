@@ -78,11 +78,10 @@ healthsensing/
     amplitude_threshold.py
     pitch_threshold.py
   utils/                     # Shared helpers
-    navigation.py            # Navigation and CTA buttons
-    home.py                  # Homepage tile rendering
-    experiment_layout.py     # Shared page header/instructions/save-result blocks
+    ui.py                    # Shared UI building blocks (tiles, headers, nav buttons)
     audio_tools.py           # WAV audio generation for hearing experiments
     adaptive_3afc.py         # Shared 3AFC adaptive staircase logic
+    three_afc.py             # Shared 3AFC page interaction and plotting helpers
   .streamlit/config.toml     # Streamlit theme/runtime config
   pyproject.toml             # Python and dependency metadata
   Makefile                   # Setup/run/clean shortcuts
@@ -108,6 +107,8 @@ This command:
 
 - `make setup` - install Python and dependencies
 - `make run` - start the Streamlit app
+- `make lint` - run Ruff lint checks
+- `make test` - run test suite
 - `make clean` - remove local environment/artifacts
 
 ## Notes

@@ -19,7 +19,8 @@ dev = [
     "pep8-naming",
     "pre-commit",
     "pytest",
-    "pytest-cov"
+    "pytest-cov",
+    "ruff",
 ]
 [tool.black]
 target-version = ["py311"]
@@ -50,3 +51,11 @@ exclude_lines = [
 minversion = "6.0"
 addopts = "-ra -q"
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [".git", ".venv", ".uv-cache", "__pycache__"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B"]
