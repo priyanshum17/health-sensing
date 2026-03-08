@@ -47,12 +47,26 @@ def student_tone_preset(
     level: str,
     default_frequency_hz: int,
 ) -> tuple[int, float]:
-    """TODO (student): Map easy/medium/hard level to tone settings.
+    """TODO (student): Map a difficulty label to a safe tone preset.
 
-    Requirements:
-        - Accept `level` in {"easy", "medium", "hard"}.
-        - Return `(frequency_hz, amplitude)` tuple.
-        - Keep frequency in app limits (20..20000) and amplitude in (0, 1].
+    Why this function exists:
+        The page lets users start from easy/medium/hard settings instead of manual
+        tuning every time. This function is the single source of truth for those
+        presets, so all users begin with predictable frequency and loudness values.
+
+    Inputs:
+        level: Difficulty string in {"easy", "medium", "hard"}.
+        default_frequency_hz: Fallback value from config.
+
+    Output:
+        `(frequency_hz, amplitude)` where:
+        - `frequency_hz` is an integer in the app range [20, 20000].
+        - `amplitude` is a float in (0.0, 1.0].
+
+    Suggested strategy:
+        - Define one preset per level with progressively harder frequencies.
+        - Use `default_frequency_hz` as fallback for unknown or missing level.
+        - Clamp outputs to legal bounds before returning.
     """
     raise NotImplementedError("Student TODO: implement difficulty preset.")
 
@@ -62,21 +76,61 @@ def student_estimate_audible_bounds(
     probe_history_hz: list[int],
     heard_flags: list[bool],
 ) -> tuple[int, int]:
-    """TODO (student): Estimate lower/upper audible bounds from probes.
+    """TODO (student): Estimate audible low/high bounds from probe history.
 
-    Requirements:
-        - Inputs are aligned lists of tested frequency and heard/not-heard.
-        - Return `(lowest_heard_hz, highest_heard_hz)`.
-        - Handle empty/no-heard cases with safe defaults.
+    Why this function exists:
+        A raw list of heard/not-heard responses is hard to interpret quickly. This
+        helper summarizes probe data into a clean range students can report in lab
+        writeups and compare across participants.
+
+    Inputs:
+        probe_history_hz: Tested frequencies in Hz.
+        heard_flags: Boolean responses aligned by index (`True` if heard).
+
+    Output:
+        `(lowest_heard_hz, highest_heard_hz)` as integer bounds.
+
+    Required behavior:
+        - Treat the two lists as aligned trial history.
+        - Extract frequencies where `heard_flags[i]` is `True`.
+        - Return min/max of heard frequencies.
+        - For empty input or no heard tones, return safe fallback bounds.
     """
     raise NotImplementedError("Student TODO: implement audible-bound estimation.")
+
+
+def student_validate_audio_params(*, frequency_hz: int, amplitude: float) -> bool:
+    """TODO (student): Validate frequency/amplitude before waveform generation.
+
+    Why this function exists:
+        Audio synthesis should fail early for illegal values. This keeps the UI
+        stable and teaches students to guard data before expensive operations.
+
+    Inputs:
+        frequency_hz: Tone frequency candidate.
+        amplitude: Loudness scalar.
+
+    Output:
+        `True` if parameters are inside legal ranges; otherwise `False`.
+
+    Minimum validation:
+        - Frequency in [20, 20000].
+        - Amplitude strictly greater than 0 and at most 1.
+    """
+    raise NotImplementedError("Student TODO: implement audio parameter validation.")
 
 
 with st.expander("Assignment TODOs (Edit This Page)"):
     st.markdown(
         "- Implement `student_tone_preset` to create easy/medium/hard probe tones.\n"
-        "- Implement `student_estimate_audible_bounds` using probe results."
+        "- Implement `student_estimate_audible_bounds` using probe results.\n"
+        "- Implement `student_validate_audio_params`."
     )
+
+st.caption(
+    "How these functions connect: choose preset start values -> validate playback params "
+    "-> summarize heard/not-heard probes into final audible bounds."
+)
 
 try:
     preset_hz, preset_amp = student_tone_preset(
@@ -100,6 +154,9 @@ if not (0.0 < float(preset_amp) <= 1.0):
     st.stop()
 if int(estimated_low) > int(estimated_high):
     st.error("`student_estimate_audible_bounds` returned invalid bounds.")
+    st.stop()
+if not student_validate_audio_params(frequency_hz=int(preset_hz), amplitude=float(preset_amp)):
+    st.error("`student_validate_audio_params` returned invalid result.")
     st.stop()
 
 with st.container(border=True):

@@ -55,13 +55,26 @@ def student_build_gap_intervals_audio(
     target_index: int,
     seed: int,
 ) -> list[bytes]:
-    """TODO (student): Build 3 interval audio clips for gap detection.
+    """TODO (student): Build one 3AFC trial audio set for gap detection.
 
-    Requirements:
-        - Return a list of exactly 3 WAV byte payloads.
-        - Only interval `target_index` should contain `gap_ms`.
-        - Non-target intervals should have 0 ms gap.
-        - Use deterministic seeding.
+    Why this function exists:
+        The listener must compare three intervals where only one contains the silent
+        gap. Centralizing generation here makes stimuli reproducible and easy to test.
+
+    Inputs:
+        gap_ms: Gap duration for the target interval.
+        amplitude: Playback amplitude for all intervals.
+        target_index: Index (0, 1, 2) containing the gap.
+        seed: Seed used so generated noise bursts are deterministic.
+
+    Output:
+        A list of exactly three WAV byte payloads.
+
+    Required behavior:
+        - Target interval gets `gap_ms`.
+        - Other intervals get zero gap.
+        - Keep amplitude consistent across all three clips.
+        - Use deterministic seeds so repeated runs are reproducible.
     """
     raise NotImplementedError("Student TODO: implement 3-interval gap audio builder.")
 
@@ -76,12 +89,15 @@ def student_apply_reversal_update(
     min_level: float,
     max_level: float,
 ) -> tuple[float, int]:
-    """TODO (student): Apply one staircase update for response correctness.
+    """TODO (student): Apply one 2-down/1-up update to gap level and streak.
 
-    Requirements:
-        - Implement 2-down/1-up style level update.
-        - Return `(next_level, next_correct_streak)`.
-        - Clamp `next_level` to bounds.
+    Why this function exists:
+        Adaptive logic controls difficulty and converges toward threshold. Students
+        implement the update rule directly to understand staircase mechanics.
+
+    Inputs/outputs:
+        Same semantics as the other 3AFC pages:
+        return `(next_level, next_correct_streak)` with proper clamping.
     """
     raise NotImplementedError("Student TODO: implement reversal step update.")
 
@@ -89,21 +105,106 @@ def student_apply_reversal_update(
 def student_plot_staircase(history: list[dict], threshold: float, y_label: str, title: str) -> None:
     """TODO (student): Plot staircase history with matplotlib.
 
-    Requirements:
+    Why this function exists:
+        A visual staircase plot is required for analysis and makes reversal behavior
+        obvious. It also helps verify your update logic is behaving correctly.
+
+    Plot requirements:
         - X-axis: trial number.
-        - Y-axis: level value.
-        - Mark correct vs incorrect responses with colors.
-        - Draw threshold as horizontal dashed line.
+        - Y-axis: tested gap level (ms).
+        - Mark correct vs incorrect responses using different colors/markers.
+        - Draw threshold as a horizontal dashed reference line.
     """
     raise NotImplementedError("Student TODO: implement staircase plotting.")
+
+
+def student_build_three_interval_targets(*, target_index: int) -> list[bool]:
+    """TODO (student): Return 3-element boolean target mask for interval selection.
+
+    Example:
+        `target_index=1` -> `[False, True, False]`.
+    """
+    raise NotImplementedError("Student TODO: implement 3AFC target mask builder.")
+
+
+def student_update_staircase_state(
+    *,
+    current_level: float,
+    step: float,
+    is_correct: bool,
+    correct_streak: int,
+    down_n: int,
+    min_level: float,
+    max_level: float,
+) -> tuple[float, int]:
+    """TODO (student): Update staircase level and streak in a reusable helper.
+
+    Tip:
+        Keep this logic consistent with `student_apply_reversal_update` so both
+        helpers produce identical behavior.
+    """
+    raise NotImplementedError("Student TODO: implement staircase state update.")
+
+
+def student_estimate_threshold_from_reversals(
+    *, reversals: list[float], fallback_level: float, tail_count: int = 4
+) -> float:
+    """TODO (student): Estimate threshold from final reversal values.
+
+    Expected approach:
+        - If enough reversals exist, average the last `tail_count`.
+        - Otherwise return `fallback_level`.
+    """
+    raise NotImplementedError("Student TODO: implement reversal-threshold estimate.")
+
+
+def student_compute_recent_accuracy(history: list[dict], window: int = 12) -> float:
+    """TODO (student): Compute rolling percent-correct from recent trials.
+
+    Expected output:
+        Percentage in `[0, 100]` computed from up to `window` most recent trials.
+    """
+    raise NotImplementedError("Student TODO: implement recent accuracy metric.")
+
+
+def student_validate_audio_params(*, amplitude: float, gap_ms: float) -> bool:
+    """TODO (student): Validate parameters before generating gap stimuli.
+
+    Minimum checks:
+        - `amplitude` in (0, 1].
+        - `gap_ms` non-negative and within realistic configured limits.
+    """
+    raise NotImplementedError("Student TODO: implement audio validation.")
+
+
+def student_plot_staircase_with_threshold(
+    *, history: list[dict], threshold: float, y_label: str, title: str
+) -> None:
+    """TODO (student): Wrapper that renders staircase with threshold annotation.
+
+    Purpose:
+        Keep plotting interface consistent across all 3AFC assignment pages.
+    """
+    raise NotImplementedError("Student TODO: implement staircase plotting helper.")
 
 
 with st.expander("Assignment TODOs (Edit This Page)"):
     st.markdown(
         "- Implement `student_build_gap_intervals_audio`.\n"
         "- Implement `student_apply_reversal_update`.\n"
-        "- Implement `student_plot_staircase`."
+        "- Implement `student_plot_staircase`.\n"
+        "- Implement `student_build_three_interval_targets`.\n"
+        "- Implement `student_update_staircase_state`.\n"
+        "- Implement `student_estimate_threshold_from_reversals`.\n"
+        "- Implement `student_compute_recent_accuracy`.\n"
+        "- Implement `student_validate_audio_params`.\n"
+        "- Implement `student_plot_staircase_with_threshold`."
     )
+
+st.caption(
+    "How these functions connect: generate three noise intervals (one with gap) -> "
+    "update adaptive staircase from responses -> estimate threshold from reversals -> plot."
+)
 
 adaptive = init_adaptive_state(
     "gap",

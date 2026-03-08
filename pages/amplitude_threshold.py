@@ -57,12 +57,28 @@ def student_build_amplitude_intervals_audio(
     reference_hz: int,
     target_index: int,
 ) -> list[bytes]:
-    """TODO (student): Build 3 interval audio clips for amplitude discrimination.
+    """TODO (student): Build one 3AFC trial audio set for amplitude discrimination.
 
-    Requirements:
-        - Return exactly 3 WAV clips.
-        - Two intervals at baseline amplitude.
-        - One interval at louder target amplitude derived from `delta_db`.
+    Why this function exists:
+        Each trial needs exactly three candidate sounds with one target interval.
+        This function packages trial generation so the page can remain focused on UI
+        and adaptive logic, while students practice controlled stimulus design.
+
+    Inputs:
+        baseline_amplitude: Reference amplitude for non-target intervals.
+        delta_db: Loudness increment in decibels for the target interval.
+        reference_hz: Tone frequency used for all intervals.
+        target_index: Index (0, 1, or 2) of the louder interval.
+
+    Output:
+        A list of exactly 3 WAV byte payloads in interval order.
+
+    Required behavior:
+        - Convert `delta_db` to an amplitude ratio.
+        - Build 3 tones at `reference_hz`.
+        - Use baseline amplitude for two intervals.
+        - Use louder amplitude for `target_index`.
+        - Return WAV bytes compatible with `st.audio`.
     """
     raise NotImplementedError("Student TODO: implement 3-interval amplitude audio builder.")
 
@@ -77,27 +93,140 @@ def student_apply_reversal_update(
     min_level: float,
     max_level: float,
 ) -> tuple[float, int]:
-    """TODO (student): Apply one staircase update for amplitude thresholding.
+    """TODO (student): Apply one 2-down/1-up staircase update step.
 
-    Requirements:
-        - Implement 2-down/1-up style update.
-        - Return `(next_level, next_correct_streak)`.
-        - Clamp level to bounds.
+    Why this function exists:
+        Adaptive thresholding is the core psychophysics concept in this test. This
+        function controls whether the next trial becomes harder or easier based on
+        current correctness and streak state.
+
+    Inputs:
+        current_level: Current stimulus level (delta dB).
+        step: Current step size.
+        is_correct: Whether current response is correct.
+        correct_streak: Number of consecutive correct responses before this trial.
+        down_n: Correct responses required to step down (usually 2).
+        min_level: Lower bound for difficulty level.
+        max_level: Upper bound for difficulty level.
+
+    Output:
+        `(next_level, next_correct_streak)` after one response update.
+
+    Required behavior:
+        - Correct: increment streak and step down only when streak reaches `down_n`.
+        - Incorrect: reset streak and step up immediately.
+        - Clamp `next_level` to `[min_level, max_level]`.
     """
     raise NotImplementedError("Student TODO: implement reversal step update.")
 
 
 def student_plot_staircase(history: list[dict], threshold: float, y_label: str, title: str) -> None:
-    """TODO (student): Plot staircase history with matplotlib."""
+    """TODO (student): Plot trial-by-trial staircase values with matplotlib.
+
+    Why this function exists:
+        Visualizing the staircase helps students debug response behavior and justify
+        the final threshold estimate in reports.
+
+    Plot requirements:
+        - X-axis: trial index/order.
+        - Y-axis: level value used each trial.
+        - Encode correct/incorrect responses with distinct markers or colors.
+        - Draw threshold as a horizontal dashed line.
+        - Add axis labels, title, and readable legend.
+    """
     raise NotImplementedError("Student TODO: implement staircase plotting.")
+
+
+def student_build_three_interval_targets(*, target_index: int) -> list[bool]:
+    """TODO (student): Build a boolean mask identifying the target interval.
+
+    Why this function exists:
+        A compact mask such as `[False, True, False]` is useful for checking trial
+        correctness, generating clips, and testing without hard-coding interval logic.
+    """
+    raise NotImplementedError("Student TODO: implement 3AFC target mask builder.")
+
+
+def student_update_staircase_state(
+    *,
+    current_level: float,
+    step: float,
+    is_correct: bool,
+    correct_streak: int,
+    down_n: int,
+    min_level: float,
+    max_level: float,
+) -> tuple[float, int]:
+    """TODO (student): State-update helper for staircase level and streak.
+
+    Why this function exists:
+        This is a modular alternative to `student_apply_reversal_update`. You can
+        implement one in terms of the other to avoid duplicated logic.
+    """
+    raise NotImplementedError("Student TODO: implement staircase state update.")
+
+
+def student_estimate_threshold_from_reversals(
+    *, reversals: list[float], fallback_level: float, tail_count: int = 4
+) -> float:
+    """TODO (student): Estimate threshold from recent reversal points.
+
+    Why this function exists:
+        Reversals approximate where performance transitions occur. Averaging the
+        trailing reversals gives a stable threshold estimate at test completion.
+    """
+    raise NotImplementedError("Student TODO: implement reversal-threshold estimate.")
+
+
+def student_compute_recent_accuracy(history: list[dict], window: int = 12) -> float:
+    """TODO (student): Compute recent rolling accuracy from trial history.
+
+    Why this function exists:
+        Recent accuracy is a quick quality-control metric. It indicates whether the
+        staircase is hovering near threshold (instead of being too easy/hard).
+    """
+    raise NotImplementedError("Student TODO: implement recent accuracy metric.")
+
+
+def student_validate_audio_params(*, amplitude: float, frequency_hz: int) -> bool:
+    """TODO (student): Validate parameters before generating amplitude stimuli.
+
+    Minimum checks:
+        - `amplitude` in (0, 1].
+        - `frequency_hz` in a sensible audible range (for example 20..20000).
+    """
+    raise NotImplementedError("Student TODO: implement audio validation.")
+
+
+def student_plot_staircase_with_threshold(
+    *, history: list[dict], threshold: float, y_label: str, title: str
+) -> None:
+    """TODO (student): Convenience wrapper that draws staircase plus threshold.
+
+    Why this function exists:
+        This keeps plotting calls consistent across 3AFC pages and can internally
+        call `student_plot_staircase` to avoid repeated plotting boilerplate.
+    """
+    raise NotImplementedError("Student TODO: implement staircase plotting helper.")
 
 
 with st.expander("Assignment TODOs (Edit This Page)"):
     st.markdown(
         "- Implement `student_build_amplitude_intervals_audio`.\n"
         "- Implement `student_apply_reversal_update`.\n"
-        "- Implement `student_plot_staircase`."
+        "- Implement `student_plot_staircase`.\n"
+        "- Implement `student_build_three_interval_targets`.\n"
+        "- Implement `student_update_staircase_state`.\n"
+        "- Implement `student_estimate_threshold_from_reversals`.\n"
+        "- Implement `student_compute_recent_accuracy`.\n"
+        "- Implement `student_validate_audio_params`.\n"
+        "- Implement `student_plot_staircase_with_threshold`."
     )
+
+st.caption(
+    "How these functions connect: generate 3-interval audio -> collect response -> "
+    "update staircase/reversals -> estimate threshold -> compute accuracy -> plot results."
+)
 
 adaptive = init_adaptive_state(
     "amplitude",

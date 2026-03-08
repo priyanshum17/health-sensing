@@ -56,12 +56,25 @@ def student_build_pitch_intervals_audio(
     amplitude: float,
     target_index: int,
 ) -> list[bytes]:
-    """TODO (student): Build 3 interval audio clips for pitch discrimination.
+    """TODO (student): Build one 3AFC trial audio set for pitch discrimination.
 
-    Requirements:
-        - Return exactly 3 WAV clips.
-        - Two intervals use `reference_hz`.
-        - One interval uses `reference_hz + delta_hz`.
+    Why this function exists:
+        Each trial requires three tones where only one differs in pitch. This helper
+        keeps trial stimulus construction modular and testable.
+
+    Inputs:
+        reference_hz: Base frequency used for two non-target intervals.
+        delta_hz: Positive pitch increment for the target interval.
+        amplitude: Shared playback amplitude.
+        target_index: Index (0, 1, 2) of the higher-pitch interval.
+
+    Output:
+        List of exactly 3 WAV byte payloads.
+
+    Required behavior:
+        - Two clips at `reference_hz`.
+        - One clip at `reference_hz + delta_hz`.
+        - Keep duration and amplitude consistent across intervals.
     """
     raise NotImplementedError("Student TODO: implement 3-interval pitch audio builder.")
 
@@ -76,27 +89,114 @@ def student_apply_reversal_update(
     min_level: float,
     max_level: float,
 ) -> tuple[float, int]:
-    """TODO (student): Apply one staircase update for pitch thresholding.
+    """TODO (student): Apply one 2-down/1-up staircase update for pitch delta.
 
-    Requirements:
-        - Implement 2-down/1-up style update.
-        - Return `(next_level, next_correct_streak)`.
-        - Clamp level to bounds.
+    Why this function exists:
+        This rule determines how fast the task gets harder/easier and is the key
+        mechanism that drives convergence to the pitch-difference threshold.
     """
     raise NotImplementedError("Student TODO: implement reversal step update.")
 
 
 def student_plot_staircase(history: list[dict], threshold: float, y_label: str, title: str) -> None:
-    """TODO (student): Plot staircase history with matplotlib."""
+    """TODO (student): Plot staircase history and threshold with matplotlib.
+
+    Minimum contents:
+        - Trial index on X-axis.
+        - Pitch-delta level on Y-axis.
+        - Correct/incorrect trial markers.
+        - Horizontal threshold reference line.
+    """
     raise NotImplementedError("Student TODO: implement staircase plotting.")
+
+
+def student_build_three_interval_targets(*, target_index: int) -> list[bool]:
+    """TODO (student): Build a boolean mask that marks the target interval.
+
+    Example:
+        `target_index=2` -> `[False, False, True]`.
+    """
+    raise NotImplementedError("Student TODO: implement 3AFC target mask builder.")
+
+
+def student_update_staircase_state(
+    *,
+    current_level: float,
+    step: float,
+    is_correct: bool,
+    correct_streak: int,
+    down_n: int,
+    min_level: float,
+    max_level: float,
+) -> tuple[float, int]:
+    """TODO (student): Reusable helper for staircase state transitions.
+
+    Suggested use:
+        Either call this from `student_apply_reversal_update` or keep both functions
+        synchronized so they express the same update policy.
+    """
+    raise NotImplementedError("Student TODO: implement staircase state update.")
+
+
+def student_estimate_threshold_from_reversals(
+    *, reversals: list[float], fallback_level: float, tail_count: int = 4
+) -> float:
+    """TODO (student): Estimate threshold from the final reversal subset.
+
+    Expected approach:
+        Average the last `tail_count` reversals when available; otherwise use the
+        provided fallback level.
+    """
+    raise NotImplementedError("Student TODO: implement reversal-threshold estimate.")
+
+
+def student_compute_recent_accuracy(history: list[dict], window: int = 12) -> float:
+    """TODO (student): Compute recent percent-correct over a sliding window.
+
+    Output:
+        Accuracy percentage in `[0, 100]` from the most recent `window` trials.
+    """
+    raise NotImplementedError("Student TODO: implement recent accuracy metric.")
+
+
+def student_validate_audio_params(*, amplitude: float, reference_hz: int) -> bool:
+    """TODO (student): Validate pitch-stimulus parameters before synthesis.
+
+    Minimum checks:
+        - `amplitude` in (0, 1].
+        - `reference_hz` in configured audible range.
+    """
+    raise NotImplementedError("Student TODO: implement audio validation.")
+
+
+def student_plot_staircase_with_threshold(
+    *, history: list[dict], threshold: float, y_label: str, title: str
+) -> None:
+    """TODO (student): Wrapper that renders staircase trace plus threshold line.
+
+    Purpose:
+        Provide one clean plotting entry-point used by the page and lab writeup.
+    """
+    raise NotImplementedError("Student TODO: implement staircase plotting helper.")
 
 
 with st.expander("Assignment TODOs (Edit This Page)"):
     st.markdown(
         "- Implement `student_build_pitch_intervals_audio`.\n"
         "- Implement `student_apply_reversal_update`.\n"
-        "- Implement `student_plot_staircase`."
+        "- Implement `student_plot_staircase`.\n"
+        "- Implement `student_build_three_interval_targets`.\n"
+        "- Implement `student_update_staircase_state`.\n"
+        "- Implement `student_estimate_threshold_from_reversals`.\n"
+        "- Implement `student_compute_recent_accuracy`.\n"
+        "- Implement `student_validate_audio_params`.\n"
+        "- Implement `student_plot_staircase_with_threshold`."
     )
+
+st.caption(
+    "How these functions connect: generate 3 pitch intervals -> collect forced-choice "
+    "responses -> run staircase updates/reversals -> estimate threshold -> visualize staircase."
+)
 
 adaptive = init_adaptive_state(
     "pitch_threshold",

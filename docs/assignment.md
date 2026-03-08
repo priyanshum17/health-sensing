@@ -1,142 +1,200 @@
-# Assignment: Human Sensing Lab (Easy to Medium)
+# Assignment: Human Sensing Lab
 
-## Goal
+This assignment is designed to be easy-to-medium difficulty.
+You will complete student functions in the `pages/` directory.
 
-You will complete missing functions across the experiment pages to build core
-psychophysics behavior yourself.
+## What You Are Building
 
-The app already provides structure and UI. Your task is to implement algorithmic
-parts in the `pages/` files.
+You will implement logic for:
 
-## Editing Rule
+- Vision contrast progression and sensitivity calculation
+- Vision size-adaptation and trial logging (Tumbling E)
+- Hearing pitch presets and audible bound estimation
+- 3AFC audio generation, staircase updates, and plotting
 
-Edit only files in `pages/`.
+## Editing Scope
 
-- Do not change function names/signatures for student TODO functions.
-- Keep existing UI sections and labels unless a TODO explicitly asks to add one.
+Edit only `pages/*.py`.
 
-## How To Work
+- Keep the existing function names and parameters.
+- Keep instruction sections and page layout intact.
+- Focus on `student_...` functions.
 
-1. Open the project in VS Code.
-2. Open each page listed below.
-3. Search for `student_` function names and `Assignment TODOs`.
-4. Implement functions and test directly in the Streamlit UI.
+## How To Work Through The Assignment
 
-## Vision Tasks
-
-## 1) Contrast Sensitivity (`pages/greyscale_resolution.py`)
-
-Implement:
-
-- `student_build_preview_triplets`
-- `student_compute_contrast_levels`
-- `student_advance_contrast_state`
-
-What you should learn:
-
-- deterministic preview generation using seeds
-- log-step contrast schedule
-- trial-state progression logic
-
-Expected behavior:
-
-- Preview rows are reproducible for the same seed.
-- Contrast levels decrease per row using log spacing.
-- State advances correctly and stops at the right point.
-
-## 2) Tumbling E (`pages/smallest_noticeable_size.py`)
-
-Implement:
-
-- `student_next_size_index`
-- `student_build_trial_log_row`
-
-What you should learn:
-
-- adaptive stepping (smaller on correct, larger on incorrect)
-- bounded index updates
-- structured trial logging for table display
-
-Expected behavior:
-
-- Size index always stays in valid range.
-- Log rows have consistent schema and correctness flag.
-
-## Hearing Task (Non-3AFC)
-
-## 3) Pitch Range Screening (`pages/pitch_frequency_range.py`)
-
-Implement:
-
-- `student_tone_preset`
-- `student_estimate_audible_bounds`
-
-What you should learn:
-
-- generating simple easy/medium/hard tone settings
-- deriving lower and upper audible estimates from probe outcomes
-
-Expected behavior:
-
-- Presets always produce valid frequency/amplitude values.
-- Audible bounds are computed robustly from probe history.
-
-## 3AFC Tasks
-
-For all 3AFC pages, implement three categories:
-
-1. interval-audio builder
-2. reversal/staircase update logic
-3. matplotlib staircase plot
-
-## 4) Sound Gap 3AFC (`pages/sound_gap_detection.py`)
-
-Implement:
-
-- `student_build_gap_intervals_audio`
-- `student_apply_reversal_update`
-- `student_plot_staircase`
-
-## 5) Amplitude 3AFC (`pages/amplitude_threshold.py`)
-
-Implement:
-
-- `student_build_amplitude_intervals_audio`
-- `student_apply_reversal_update`
-- `student_plot_staircase`
-
-## 6) Pitch 3AFC (`pages/pitch_threshold.py`)
-
-Implement:
-
-- `student_build_pitch_intervals_audio`
-- `student_apply_reversal_update`
-- `student_plot_staircase`
-
-What you should learn from all 3AFC tasks:
-
-- creating three-interval forced-choice audio stimuli
-- adaptive reversal logic (2-down/1-up style)
-- visualizing trial level history with threshold estimate
-
-## Submission Checklist
-
-- All `student_...` functions are implemented.
-- App runs without `NotImplementedError`.
-- Each page shows expected interaction behavior.
-- 3AFC pages show a staircase plot after completion.
-
-## Suggested Validation
-
-- Run app:
+1. Open the repo in VS Code.
+2. Start app:
 ```sh
 uv run streamlit run app.py
 ```
-- Run tests:
+3. Open each page and read the `Assignment TODOs` box.
+4. Implement functions one by one.
+5. Re-run page and verify behavior.
+
+## Vision Experiments
+
+## 1) Contrast Sensitivity
+
+File: `pages/greyscale_resolution.py`
+
+What this test measures:
+- The smallest contrast difference you can still detect.
+
+Implement these functions:
+- `student_build_preview_triplets`
+- `student_compute_contrast_levels`
+- `student_advance_contrast_state`
+- `student_compute_log_contrast_sensitivity`
+
+What good output looks like:
+- Preview rows are deterministic for the same seed.
+- Contrast starts high and decreases each level.
+- Test state advances correctly and finishes correctly.
+- Log contrast sensitivity is computed from threshold percent.
+
+Useful references:
+- Python random with seed:
+  https://docs.python.org/3/library/random.html#random.Random
+- Python log10:
+  https://docs.python.org/3/library/math.html#math.log10
+
+## 2) Visual Resolution (Tumbling E)
+
+File: `pages/smallest_noticeable_size.py`
+
+What this test measures:
+- The smallest optotype size you can reliably identify.
+
+Implement these functions:
+- `student_next_size_index`
+- `student_build_trial_log_row`
+- `student_validate_screen_geometry`
+- `student_compute_mar_arcmin`
+- `student_format_trial_log_row`
+
+What good output looks like:
+- Correct response makes E smaller, incorrect makes it larger.
+- Size index stays within valid bounds.
+- MAR values are stable and realistic.
+- Trial log row format is consistent.
+
+Useful references:
+- Visual angle basics:
+  https://en.wikipedia.org/wiki/Visual_angle
+- Python dict basics:
+  https://docs.python.org/3/tutorial/datastructures.html#dictionaries
+
+## Hearing (Non-3AFC)
+
+## 3) Pitch Frequency Range
+
+File: `pages/pitch_frequency_range.py`
+
+What this test measures:
+- Approximate lower and upper audible frequency bounds.
+
+Implement these functions:
+- `student_tone_preset`
+- `student_estimate_audible_bounds`
+- `student_validate_audio_params`
+
+What good output looks like:
+- Easy/medium/hard presets map to usable tone settings.
+- Bound estimation handles empty and normal probe histories.
+- Audio validation rejects invalid settings.
+
+Useful references:
+- Human hearing range overview:
+  https://en.wikipedia.org/wiki/Hearing_range
+
+## 3AFC Experiments
+
+3AFC means 3-alternative forced choice:
+- One of three intervals contains the target cue.
+- User must pick 1, 2, or 3 each trial.
+
+You will implement shared patterns in three files.
+
+Core categories:
+1. Build three-interval target layout
+2. Build interval audio clips
+3. Update staircase state (2-down/1-up style)
+4. Estimate threshold from reversals
+5. Compute recent accuracy
+6. Validate audio params
+7. Plot staircase with threshold
+
+## 4) Sound Gap Detection 3AFC
+
+File: `pages/sound_gap_detection.py`
+
+Implement:
+- `student_build_gap_intervals_audio`
+- `student_apply_reversal_update`
+- `student_plot_staircase`
+- `student_build_three_interval_targets`
+- `student_update_staircase_state`
+- `student_estimate_threshold_from_reversals`
+- `student_compute_recent_accuracy`
+- `student_validate_audio_params`
+- `student_plot_staircase_with_threshold`
+
+## 5) Amplitude Discrimination 3AFC
+
+File: `pages/amplitude_threshold.py`
+
+Implement:
+- `student_build_amplitude_intervals_audio`
+- `student_apply_reversal_update`
+- `student_plot_staircase`
+- `student_build_three_interval_targets`
+- `student_update_staircase_state`
+- `student_estimate_threshold_from_reversals`
+- `student_compute_recent_accuracy`
+- `student_validate_audio_params`
+- `student_plot_staircase_with_threshold`
+
+## 6) Pitch Discrimination 3AFC
+
+File: `pages/pitch_threshold.py`
+
+Implement:
+- `student_build_pitch_intervals_audio`
+- `student_apply_reversal_update`
+- `student_plot_staircase`
+- `student_build_three_interval_targets`
+- `student_update_staircase_state`
+- `student_estimate_threshold_from_reversals`
+- `student_compute_recent_accuracy`
+- `student_validate_audio_params`
+- `student_plot_staircase_with_threshold`
+
+Useful references for 3AFC pages:
+- Matplotlib plotting:
+  https://matplotlib.org/stable/tutorials/index.html
+- Forced-choice method overview:
+  https://en.wikipedia.org/wiki/Forced-choice_test
+
+## Validation Checklist
+
+- All `student_...` functions are implemented.
+- App pages run without `NotImplementedError`.
+- Visual pages update state and logs correctly.
+- 3AFC pages produce changing levels and plot output.
+
+## Suggested Commands
+
+Run app:
+```sh
+uv run streamlit run app.py
+```
+
+Run tests:
 ```sh
 uv run pytest
 ```
-- Optional lint:
+
+Lint:
 ```sh
 uv run ruff check .
 ```
