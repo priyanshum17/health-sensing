@@ -1,120 +1,80 @@
-# Application Logic Guide
+# Application Logic and Architecture
 
-## Purpose
-
-This document explains the runtime logic and code organization of the
-Health Sensing app so contributors can modify behavior safely.
+This document explains how the app works so students can edit TODO functions safely.
 
 ## Runtime Flow
 
-1. Streamlit starts with `app.py`.
-2. Home page renders experiment tiles and routes users to `pages/*.py`.
-3. Each experiment page loads its own config block from `test_config.json`.
-4. User actions update `st.session_state` and trigger reruns.
-5. Adaptive tests continue until stopping criteria are reached.
+1. `app.py` renders the home page.
+2. User opens an experiment page from `pages/`.
+3. Page loads configuration values from `config/test_config.json`.
+4. User actions update `st.session_state`.
+5. Streamlit reruns page code after each interaction.
+6. Adaptive pages stop when their finish criteria are met.
 
-## Core Modules
+## Directory Responsibilities
 
-### `utils/ui.py`
+- `pages/`: assignment TODOs plus experiment-specific page flows
+- `pages/_shared_3afc_student.py`: shared 3AFC student TODOs
+- `utils/`: reusable infrastructure logic (audio/config/adaptive/ui)
+- `config/`: parameter values and limits
+- `tests/`: unit tests for reusable modules
+- `docs/`: setup and assignment guides
 
-Shared presentation components:
+## Why Shared 3AFC Logic Lives in `pages/`
 
-- home/test navigation buttons
-- experiment tiles
-- page headers
-- instruction cards
+This assignment keeps all student work in one directory (`pages/`) so beginners
+have a single coding area.
 
-Use this module whenever you need shared page layout behavior.
+Design split:
 
-### `utils/test_config.py`
+- page files contain stimulus-specific logic
+- `_shared_3afc_student.py` contains shared adaptive/metrics/plot logic
 
-Loads `config/test_config.json` and caches it with `lru_cache`.
+This reduces repeated code and lowers assignment size while keeping structure clear.
 
-- source of truth for test defaults/ranges/staircase parameters
-- avoids hardcoding repeated constants across page files
+## Utility Modules You Should Not Need To Edit
 
-### `utils/adaptive_3afc.py`
+## `utils/test_config.py`
 
-Implements adaptive staircase mechanics:
+- loads and caches config JSON
+- avoids repeated hardcoded constants
 
-- adaptive state initialization
-- randomized target interval generation
-- response registration (`2-down/1-up`)
-- reversal tracking and threshold estimation
+## `utils/audio_tools.py`
 
-This file is pure test logic; it should remain UI-agnostic except for
-session-state storage.
+- waveform generation and WAV serialization
+- used by hearing tests for consistent output format
 
-### `utils/three_afc.py`
+## `utils/adaptive_3afc.py`
 
-Provides reusable page-level 3AFC helpers:
+- adaptive state lifecycle
+- target interval state and response bookkeeping
+- reversal/threshold mechanics used by app runtime
 
-- response feedback UI
-- response submit-and-advance action
-- recent/overall metric rendering
-- staircase plot rendering
+## `utils/three_afc.py`
 
-This module reduces duplication in 3AFC page files.
+- shared 3AFC UI actions and summary rendering
+- response handling wrappers used by page runtime
 
-### `utils/audio_tools.py`
+## Safety Expectations for Student Functions
 
-Audio synthesis utilities:
+- return correct output type
+- clamp values to configured bounds
+- validate inputs before numeric operations
+- avoid division by zero and empty-list crashes
+- keep behavior deterministic when seed is provided
 
-- sine tone generation
-- white noise generation
-- silent gaps
-- WAV serialization
+## Common Mistakes
 
-All hearing tests rely on this module for consistent output format.
+- returning wrong list length for 3AFC intervals
+- forgetting to clamp adaptive level/index values
+- mixing up percentage units vs fraction units
+- using non-deterministic random behavior when deterministic output is required
+- changing output key names in trial log dicts
 
-## Page Responsibilities
+## How To Debug Quickly
 
-### `pages/greyscale_resolution.py`
-
-- Fixed Pelli-style progression.
-- Contrast levels derived from config (`rows`, `log_contrast_step`).
-- Session-state fields track current level, history, and completion.
-
-### `pages/smallest_noticeable_size.py`
-
-- Tumbling E orientation task.
-- Correct response makes target smaller; incorrect makes it larger.
-- MAR computed from screen geometry + viewing distance.
-
-### `pages/pitch_frequency_range.py`
-
-- Direct tone playback by frequency and amplitude controls.
-- Intended as manual screening rather than adaptive staircase.
-
-### 3AFC Pages
-
-- `pages/sound_gap_detection.py`
-- `pages/amplitude_threshold.py`
-- `pages/pitch_threshold.py`
-
-Shared structure:
-
-1. Initialize adaptive state and trial descriptor.
-2. Render three interval stimuli (one target + two references).
-3. Collect forced-choice response.
-4. Update staircase and rerun.
-5. Show threshold metrics and completion plot.
-
-## Configuration Conventions
-
-- Keep all experiment constants in `config/test_config.json`.
-- Add new keys under a dedicated test namespace.
-- Prefer descriptive names such as `adaptive.start_level`,
-  `adaptive.min_level`, and `adaptive.max_reversals`.
-
-## Testing Conventions
-
-- Add unit tests for reusable logic in `utils/`.
-- Avoid UI-heavy tests unless behavior cannot be validated otherwise.
-- Keep tests deterministic where possible (`seed` usage).
-
-Current tests cover:
-
-- adaptive staircase updates
-- audio output shape/headers
-- config loader behavior
+1. implement one function
+2. run app page that uses it
+3. read traceback from first error line
+4. fix one issue at a time
+5. run `uv run pytest` and `uv run ruff check .`

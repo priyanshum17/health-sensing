@@ -1,5 +1,15 @@
 import streamlit as st
 
+from pages._shared_3afc_student import (
+    shared_student_apply_reversal_update,
+    shared_student_build_three_interval_targets,
+    shared_student_compute_recent_accuracy,
+    shared_student_estimate_threshold_from_reversals,
+    shared_student_plot_staircase,
+    shared_student_plot_staircase_with_threshold,
+    shared_student_update_staircase_state,
+    shared_student_validate_audio_params,
+)
 from utils.adaptive_3afc import (
     estimate_threshold,
     get_or_create_trial,
@@ -89,42 +99,31 @@ def student_apply_reversal_update(
     min_level: float,
     max_level: float,
 ) -> tuple[float, int]:
-    """TODO (student): Apply one 2-down/1-up update to gap level and streak.
-
-    Why this function exists:
-        Adaptive logic controls difficulty and converges toward threshold. Students
-        implement the update rule directly to understand staircase mechanics.
-
-    Inputs/outputs:
-        Same semantics as the other 3AFC pages:
-        return `(next_level, next_correct_streak)` with proper clamping.
-    """
-    raise NotImplementedError("Student TODO: implement reversal step update.")
+    """Shared 3AFC TODO: implement in `pages/_shared_3afc_student.py`."""
+    return shared_student_apply_reversal_update(
+        current_level=current_level,
+        step=step,
+        is_correct=is_correct,
+        correct_streak=correct_streak,
+        down_n=down_n,
+        min_level=min_level,
+        max_level=max_level,
+    )
 
 
 def student_plot_staircase(history: list[dict], threshold: float, y_label: str, title: str) -> None:
-    """TODO (student): Plot staircase history with matplotlib.
-
-    Why this function exists:
-        A visual staircase plot is required for analysis and makes reversal behavior
-        obvious. It also helps verify your update logic is behaving correctly.
-
-    Plot requirements:
-        - X-axis: trial number.
-        - Y-axis: tested gap level (ms).
-        - Mark correct vs incorrect responses using different colors/markers.
-        - Draw threshold as a horizontal dashed reference line.
-    """
-    raise NotImplementedError("Student TODO: implement staircase plotting.")
+    """Shared 3AFC TODO: implement in `pages/_shared_3afc_student.py`."""
+    shared_student_plot_staircase(
+        history=history,
+        threshold=threshold,
+        y_label=y_label,
+        title=title,
+    )
 
 
 def student_build_three_interval_targets(*, target_index: int) -> list[bool]:
-    """TODO (student): Return 3-element boolean target mask for interval selection.
-
-    Example:
-        `target_index=1` -> `[False, True, False]`.
-    """
-    raise NotImplementedError("Student TODO: implement 3AFC target mask builder.")
+    """Shared 3AFC TODO: implement in `pages/_shared_3afc_student.py`."""
+    return shared_student_build_three_interval_targets(target_index=target_index)
 
 
 def student_update_staircase_state(
@@ -137,74 +136,128 @@ def student_update_staircase_state(
     min_level: float,
     max_level: float,
 ) -> tuple[float, int]:
-    """TODO (student): Update staircase level and streak in a reusable helper.
-
-    Tip:
-        Keep this logic consistent with `student_apply_reversal_update` so both
-        helpers produce identical behavior.
-    """
-    raise NotImplementedError("Student TODO: implement staircase state update.")
+    """Shared 3AFC TODO: implement in `pages/_shared_3afc_student.py`."""
+    return shared_student_update_staircase_state(
+        current_level=current_level,
+        step=step,
+        is_correct=is_correct,
+        correct_streak=correct_streak,
+        down_n=down_n,
+        min_level=min_level,
+        max_level=max_level,
+    )
 
 
 def student_estimate_threshold_from_reversals(
     *, reversals: list[float], fallback_level: float, tail_count: int = 4
 ) -> float:
-    """TODO (student): Estimate threshold from final reversal values.
-
-    Expected approach:
-        - If enough reversals exist, average the last `tail_count`.
-        - Otherwise return `fallback_level`.
-    """
-    raise NotImplementedError("Student TODO: implement reversal-threshold estimate.")
+    """Shared 3AFC TODO: implement in `pages/_shared_3afc_student.py`."""
+    return shared_student_estimate_threshold_from_reversals(
+        reversals=reversals,
+        fallback_level=fallback_level,
+        tail_count=tail_count,
+    )
 
 
 def student_compute_recent_accuracy(history: list[dict], window: int = 12) -> float:
-    """TODO (student): Compute rolling percent-correct from recent trials.
-
-    Expected output:
-        Percentage in `[0, 100]` computed from up to `window` most recent trials.
-    """
-    raise NotImplementedError("Student TODO: implement recent accuracy metric.")
+    """Shared 3AFC TODO: implement in `pages/_shared_3afc_student.py`."""
+    return shared_student_compute_recent_accuracy(history=history, window=window)
 
 
 def student_validate_audio_params(*, amplitude: float, gap_ms: float) -> bool:
-    """TODO (student): Validate parameters before generating gap stimuli.
-
-    Minimum checks:
-        - `amplitude` in (0, 1].
-        - `gap_ms` non-negative and within realistic configured limits.
-    """
-    raise NotImplementedError("Student TODO: implement audio validation.")
+    """Shared 3AFC TODO: implement in `pages/_shared_3afc_student.py`."""
+    return shared_student_validate_audio_params(amplitude=amplitude, stimulus_value=gap_ms)
 
 
 def student_plot_staircase_with_threshold(
     *, history: list[dict], threshold: float, y_label: str, title: str
 ) -> None:
-    """TODO (student): Wrapper that renders staircase with threshold annotation.
-
-    Purpose:
-        Keep plotting interface consistent across all 3AFC assignment pages.
-    """
-    raise NotImplementedError("Student TODO: implement staircase plotting helper.")
+    """Shared 3AFC TODO: implement in `pages/_shared_3afc_student.py`."""
+    shared_student_plot_staircase_with_threshold(
+        history=history,
+        threshold=threshold,
+        y_label=y_label,
+        title=title,
+    )
 
 
 with st.expander("Assignment TODOs (Edit This Page)"):
     st.markdown(
         "- Implement `student_build_gap_intervals_audio`.\n"
-        "- Implement `student_apply_reversal_update`.\n"
-        "- Implement `student_plot_staircase`.\n"
-        "- Implement `student_build_three_interval_targets`.\n"
-        "- Implement `student_update_staircase_state`.\n"
-        "- Implement `student_estimate_threshold_from_reversals`.\n"
-        "- Implement `student_compute_recent_accuracy`.\n"
-        "- Implement `student_validate_audio_params`.\n"
-        "- Implement `student_plot_staircase_with_threshold`."
+        "- Implement shared 3AFC helpers in `pages/_shared_3afc_student.py`:\n"
+        "  - `shared_student_apply_reversal_update`\n"
+        "  - `shared_student_plot_staircase`\n"
+        "  - `shared_student_build_three_interval_targets`\n"
+        "  - `shared_student_update_staircase_state`\n"
+        "  - `shared_student_estimate_threshold_from_reversals`\n"
+        "  - `shared_student_compute_recent_accuracy`\n"
+        "  - `shared_student_validate_audio_params`\n"
+        "  - `shared_student_plot_staircase_with_threshold`"
     )
 
 st.caption(
     "How these functions connect: generate three noise intervals (one with gap) -> "
     "update adaptive staircase from responses -> estimate threshold from reversals -> plot."
 )
+
+try:
+    _ = student_build_three_interval_targets(target_index=1)
+    _ = student_build_gap_intervals_audio(
+        gap_ms=float(cfg["adaptive"]["start_level"]),
+        amplitude=float(cfg["playback"]["amplitude"]["default"]),
+        target_index=1,
+        seed=123,
+    )
+    _ = student_apply_reversal_update(
+        current_level=float(cfg["adaptive"]["start_level"]),
+        step=float(cfg["adaptive"]["initial_step"]),
+        is_correct=True,
+        correct_streak=1,
+        down_n=int(cfg["adaptive"]["down"]),
+        min_level=float(cfg["adaptive"]["min_level"]),
+        max_level=float(cfg["adaptive"]["max_level"]),
+    )
+    _ = student_update_staircase_state(
+        current_level=float(cfg["adaptive"]["start_level"]),
+        step=float(cfg["adaptive"]["initial_step"]),
+        is_correct=False,
+        correct_streak=0,
+        down_n=int(cfg["adaptive"]["down"]),
+        min_level=float(cfg["adaptive"]["min_level"]),
+        max_level=float(cfg["adaptive"]["max_level"]),
+    )
+    _ = student_estimate_threshold_from_reversals(
+        reversals=[float(cfg["adaptive"]["start_level"])],
+        fallback_level=float(cfg["adaptive"]["start_level"]),
+        tail_count=1,
+    )
+    _ = student_compute_recent_accuracy(
+        history=[{"Correct": "Yes"}, {"Correct": "No"}],
+        window=2,
+    )
+    _ = student_validate_audio_params(
+        amplitude=float(cfg["playback"]["amplitude"]["default"]),
+        gap_ms=float(cfg["adaptive"]["start_level"]),
+    )
+    student_plot_staircase(
+        history=[{"Trial": 1, "Level": float(cfg["adaptive"]["start_level"]), "Correct": "Yes"}],
+        threshold=float(cfg["adaptive"]["start_level"]),
+        y_label="Gap (ms)",
+        title="Preview Staircase",
+    )
+    student_plot_staircase_with_threshold(
+        history=[{"Trial": 1, "Level": float(cfg["adaptive"]["start_level"]), "Correct": "Yes"}],
+        threshold=float(cfg["adaptive"]["start_level"]),
+        y_label="Gap (ms)",
+        title="Preview Staircase",
+    )
+except NotImplementedError as error:
+    st.error(str(error))
+    st.warning(
+        "Assignment mode is active for this page. Complete `student_build_gap_intervals_audio` "
+        "in this file and the shared 3AFC TODOs in `pages/_shared_3afc_student.py`, then reload."
+    )
+    st.stop()
 
 adaptive = init_adaptive_state(
     "gap",

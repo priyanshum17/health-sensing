@@ -1,88 +1,55 @@
 # Health Sensing
 
-Health Sensing is a Streamlit application for running vision and hearing
-psychophysics exercises in a structured lab flow.
+Health Sensing is a Streamlit lab app used for beginner-friendly vision and hearing
+psychophysics assignments.
 
-## What This Repo Contains
+This repository is intentionally scaffolded so students implement a focused set of
+TODO functions instead of building the full app from scratch.
 
-Implemented experiment pages:
+## First 10 Minutes
 
-- Contrast sensitivity (Pelli-style progression)
-- Visual resolution (Tumbling E)
-- Pitch frequency range screening
-- Sound gap detection (3AFC adaptive)
-- Amplitude discrimination (3AFC adaptive)
-- Pitch discrimination threshold (3AFC adaptive)
+1. Install and run setup from [docs/install.md](docs/install.md).
+2. Start the app: `uv run streamlit run app.py`.
+3. Read [docs/assignment.md](docs/assignment.md) once before coding.
+4. Keep [docs/student_functions.md](docs/student_functions.md) open while implementing TODOs.
 
-## How The App Works
+## What You Edit
 
-- `app.py` is the multipage home screen and experiment launcher.
-- Each file in `pages/` is one experiment workflow.
-- Test parameters are centralized in `config/test_config.json`.
-- Shared logic modules in `utils/`: `ui.py`, `adaptive_3afc.py`,
-  `three_afc.py`, `audio_tools.py`, and `test_config.py`.
+Students should edit only files in `pages/`:
 
-For a deeper walkthrough of runtime flow and module responsibilities, see
-[docs/app_logic.md](docs/app_logic.md).
+- experiment-specific TODOs in page files
+- shared 3AFC TODOs in `pages/_shared_3afc_student.py`
 
-## Requirements
+Do not rename function signatures unless an instructor explicitly asks.
 
-- Python 3.11+
-- `uv` package manager
+## Assignment File Map
 
-## Assignment Setup
+- `pages/greyscale_resolution.py`
+- `pages/smallest_noticeable_size.py`
+- `pages/pitch_frequency_range.py`
+- `pages/sound_gap_detection.py`
+- `pages/amplitude_threshold.py`
+- `pages/pitch_threshold.py`
+- `pages/_shared_3afc_student.py` (shared 3AFC logic)
 
-Use this section if you are new to Git or `uv`.
+## Quick Setup
 
-### Step 1: Get The Project Files
-
-Choose one option.
-
-Option A: Use Git
+### Option A: Git Clone
 
 ```sh
 git clone https://github.com/priyanshum17/healthsensing
 cd healthsensing
 ```
 
-If you already cloned before and want the latest changes:
+### Option B: ZIP Download
 
-```sh
-cd healthsensing
-git pull
-```
+1. Open the repository on GitHub.
+2. Click `Code` -> `Download ZIP`.
+3. Extract ZIP.
+4. Open extracted `healthsensing` folder in VS Code.
+5. Open terminal in that folder.
 
-Option B: Download ZIP from GitHub (no Git required)
-
-1. Open the repository page on GitHub.
-2. Click `Code`.
-3. Click `Download ZIP`.
-4. Extract the ZIP to a folder you can access.
-5. Open a terminal in the extracted `healthsensing` folder.
-
-## Open In VS Code
-
-From terminal in the project folder:
-
-```sh
-code .
-```
-
-Or open VS Code manually and choose `File` -> `Open Folder...` -> `healthsensing`.
-
-### Step 2: Install `uv`
-
-Install `uv` from the official guide:
-
-- https://docs.astral.sh/uv/getting-started/installation/
-
-After installing, close and reopen your terminal.
-
-### Step 3: Run The App
-
-Use the command block for your platform/terminal.
-
-macOS/Linux:
+## Run (All Platforms)
 
 ```sh
 uv python install 3.11
@@ -90,7 +57,11 @@ uv sync
 uv run streamlit run app.py
 ```
 
-Windows PowerShell:
+Open `http://localhost:8501`.
+
+## Windows Options
+
+### PowerShell
 
 ```powershell
 uv python install 3.11
@@ -98,7 +69,7 @@ uv sync
 uv run streamlit run app.py
 ```
 
-Windows Git Bash:
+### Git Bash
 
 ```bash
 uv python install 3.11
@@ -106,44 +77,38 @@ uv sync
 uv run streamlit run app.py
 ```
 
-Then open `http://localhost:8501` in your browser.
+If `git` is missing on Windows, install Git for Windows:
+https://gitforwindows.org
 
-## Developer Commands
+## Safety and Quality Checklist (Before Submission)
 
-- install/sync dependencies:
-```sh
-uv python install 3.11
-uv sync
-```
-- run app:
-```sh
-uv run streamlit run app.py
-```
-- lint:
-```sh
-uv run ruff check .
-```
-- tests:
-```sh
-uv run pytest
-```
-- clean local artifacts:
-```sh
-rm -rf .venv __pycache__ .pytest_cache coverage
-```
+1. `uv run ruff check .`
+2. `uv run pytest`
+3. Confirm no assignment TODO still raises `NotImplementedError`
+4. Confirm each page runs without crashing
+5. Confirm adaptive values are clamped to configured limits
 
-Windows PowerShell clean command:
+## Documentation Index
 
-```powershell
-Remove-Item -Recurse -Force .venv, __pycache__, .pytest_cache, coverage -ErrorAction SilentlyContinue
-```
+- [docs/install.md](docs/install.md): setup and troubleshooting
+- [docs/assignment.md](docs/assignment.md): assignment scope and workflow
+- [docs/student_functions.md](docs/student_functions.md): detailed per-function guidance
+- [docs/app_logic.md](docs/app_logic.md): architecture and runtime flow
 
-## Repository Structure
+## Project Structure
 
 ```text
 healthsensing/
   app.py
+  config/
+    test_config.json
+  docs/
+    app_logic.md
+    assignment.md
+    install.md
+    student_functions.md
   pages/
+    _shared_3afc_student.py
     amplitude_threshold.py
     greyscale_resolution.py
     pitch_frequency_range.py
@@ -151,29 +116,11 @@ healthsensing/
     smallest_noticeable_size.py
     sound_gap_detection.py
   utils/
-    adaptive_3afc.py
-    audio_tools.py
-    test_config.py
-    three_afc.py
-    ui.py
-  config/
-    test_config.json
-  docs/
-    app_logic.md
-    assignment.md
-    install.md
   tests/
 ```
 
-## Troubleshooting
+## If You Are Stuck
 
-Start with [docs/install.md](docs/install.md). It includes:
-
-- OS-specific install flows
-- failure-mode troubleshooting by error symptom
-- command-level recovery steps
-
-## Notes
-
-- The app is intended for local use.
-- Runtime state is session-based (stored in Streamlit session state).
+1. Check [docs/install.md](docs/install.md).
+2. Check [docs/student_functions.md](docs/student_functions.md).
+3. Ask for help with command output and traceback included.

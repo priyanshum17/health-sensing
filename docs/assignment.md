@@ -1,200 +1,122 @@
-# Assignment: Human Sensing Lab
+# Assignment Guide: Human Sensing Lab
 
-This assignment is designed to be easy-to-medium difficulty.
-You will complete student functions in the `pages/` directory.
+## Assignment Goal
 
-## What You Are Building
+Implement student TODO functions so each experiment page runs correctly and safely.
+You are not expected to redesign the app UI or architecture.
 
-You will implement logic for:
+## What You Must Edit
 
-- Vision contrast progression and sensitivity calculation
-- Vision size-adaptation and trial logging (Tumbling E)
-- Hearing pitch presets and audible bound estimation
-- 3AFC audio generation, staircase updates, and plotting
+Edit only `pages/` files.
 
-## Editing Scope
+Required files:
 
-Edit only `pages/*.py`.
+- `pages/greyscale_resolution.py`
+- `pages/smallest_noticeable_size.py`
+- `pages/pitch_frequency_range.py`
+- `pages/sound_gap_detection.py`
+- `pages/amplitude_threshold.py`
+- `pages/pitch_threshold.py`
+- `pages/_shared_3afc_student.py`
 
-- Keep the existing function names and parameters.
-- Keep instruction sections and page layout intact.
-- Focus on `student_...` functions.
+## Rules
 
-## How To Work Through The Assignment
+- Keep function names and signatures unchanged.
+- Do not remove instruction sections.
+- Keep outputs compatible with existing page code.
+- Handle invalid values safely (bounds checks, non-empty checks, divide-by-zero guards).
 
-1. Open the repo in VS Code.
-2. Start app:
-```sh
-uv run streamlit run app.py
-```
-3. Open each page and read the `Assignment TODOs` box.
-4. Implement functions one by one.
-5. Re-run page and verify behavior.
+## Recommended Order (Easy to Hard)
 
-## Vision Experiments
+1. `greyscale_resolution.py`
+2. `smallest_noticeable_size.py`
+3. `pitch_frequency_range.py`
+4. `pages/_shared_3afc_student.py`
+5. `sound_gap_detection.py`
+6. `amplitude_threshold.py`
+7. `pitch_threshold.py`
+
+## Experiments and Student Responsibilities
 
 ## 1) Contrast Sensitivity
 
 File: `pages/greyscale_resolution.py`
 
-What this test measures:
-- The smallest contrast difference you can still detect.
+Implement:
+- deterministic preview generation
+- log contrast level schedule
+- progression stop/advance logic
+- log contrast sensitivity calculation
 
-Implement these functions:
-- `student_build_preview_triplets`
-- `student_compute_contrast_levels`
-- `student_advance_contrast_state`
-- `student_compute_log_contrast_sensitivity`
-
-What good output looks like:
-- Preview rows are deterministic for the same seed.
-- Contrast starts high and decreases each level.
-- Test state advances correctly and finishes correctly.
-- Log contrast sensitivity is computed from threshold percent.
-
-Useful references:
-- Python random with seed:
-  https://docs.python.org/3/library/random.html#random.Random
-- Python log10:
-  https://docs.python.org/3/library/math.html#math.log10
-
-## 2) Visual Resolution (Tumbling E)
+## 2) Tumbling E Visual Resolution
 
 File: `pages/smallest_noticeable_size.py`
 
-What this test measures:
-- The smallest optotype size you can reliably identify.
+Implement:
+- adaptive size stepping
+- screen geometry validation
+- MAR conversion
+- consistent trial log row formatting
 
-Implement these functions:
-- `student_next_size_index`
-- `student_build_trial_log_row`
-- `student_validate_screen_geometry`
-- `student_compute_mar_arcmin`
-- `student_format_trial_log_row`
-
-What good output looks like:
-- Correct response makes E smaller, incorrect makes it larger.
-- Size index stays within valid bounds.
-- MAR values are stable and realistic.
-- Trial log row format is consistent.
-
-Useful references:
-- Visual angle basics:
-  https://en.wikipedia.org/wiki/Visual_angle
-- Python dict basics:
-  https://docs.python.org/3/tutorial/datastructures.html#dictionaries
-
-## Hearing (Non-3AFC)
-
-## 3) Pitch Frequency Range
+## 3) Pitch Frequency Range Screening
 
 File: `pages/pitch_frequency_range.py`
 
-What this test measures:
-- Approximate lower and upper audible frequency bounds.
-
-Implement these functions:
-- `student_tone_preset`
-- `student_estimate_audible_bounds`
-- `student_validate_audio_params`
-
-What good output looks like:
-- Easy/medium/hard presets map to usable tone settings.
-- Bound estimation handles empty and normal probe histories.
-- Audio validation rejects invalid settings.
-
-Useful references:
-- Human hearing range overview:
-  https://en.wikipedia.org/wiki/Hearing_range
-
-## 3AFC Experiments
-
-3AFC means 3-alternative forced choice:
-- One of three intervals contains the target cue.
-- User must pick 1, 2, or 3 each trial.
-
-You will implement shared patterns in three files.
-
-Core categories:
-1. Build three-interval target layout
-2. Build interval audio clips
-3. Update staircase state (2-down/1-up style)
-4. Estimate threshold from reversals
-5. Compute recent accuracy
-6. Validate audio params
-7. Plot staircase with threshold
-
-## 4) Sound Gap Detection 3AFC
-
-File: `pages/sound_gap_detection.py`
-
 Implement:
-- `student_build_gap_intervals_audio`
-- `student_apply_reversal_update`
-- `student_plot_staircase`
-- `student_build_three_interval_targets`
-- `student_update_staircase_state`
-- `student_estimate_threshold_from_reversals`
-- `student_compute_recent_accuracy`
-- `student_validate_audio_params`
-- `student_plot_staircase_with_threshold`
+- easy/medium/hard preset mapping
+- heard-range estimation from probe history
+- audio parameter validation
 
-## 5) Amplitude Discrimination 3AFC
+## 4) Shared 3AFC Core
 
-File: `pages/amplitude_threshold.py`
+File: `pages/_shared_3afc_student.py`
 
-Implement:
-- `student_build_amplitude_intervals_audio`
-- `student_apply_reversal_update`
-- `student_plot_staircase`
-- `student_build_three_interval_targets`
-- `student_update_staircase_state`
-- `student_estimate_threshold_from_reversals`
-- `student_compute_recent_accuracy`
-- `student_validate_audio_params`
-- `student_plot_staircase_with_threshold`
+Implement shared helpers once:
+- staircase updates
+- target-mask generation
+- threshold estimate from reversals
+- recent accuracy metric
+- validation helper
+- staircase plotting helpers
 
-## 6) Pitch Discrimination 3AFC
+## 5) 3AFC Stimulus Builders (Page-Specific)
 
-File: `pages/pitch_threshold.py`
+Implement one page-specific audio builder per page:
 
-Implement:
-- `student_build_pitch_intervals_audio`
-- `student_apply_reversal_update`
-- `student_plot_staircase`
-- `student_build_three_interval_targets`
-- `student_update_staircase_state`
-- `student_estimate_threshold_from_reversals`
-- `student_compute_recent_accuracy`
-- `student_validate_audio_params`
-- `student_plot_staircase_with_threshold`
+- `pages/sound_gap_detection.py`: `student_build_gap_intervals_audio`
+- `pages/amplitude_threshold.py`: `student_build_amplitude_intervals_audio`
+- `pages/pitch_threshold.py`: `student_build_pitch_intervals_audio`
 
-Useful references for 3AFC pages:
-- Matplotlib plotting:
-  https://matplotlib.org/stable/tutorials/index.html
-- Forced-choice method overview:
-  https://en.wikipedia.org/wiki/Forced-choice_test
+These pages call your shared 3AFC logic from `pages/_shared_3afc_student.py`.
 
-## Validation Checklist
+## Completion Definition
 
-- All `student_...` functions are implemented.
-- App pages run without `NotImplementedError`.
-- Visual pages update state and logs correctly.
-- 3AFC pages produce changing levels and plot output.
+You are done when:
 
-## Suggested Commands
+- all required TODO functions are implemented
+- no assignment `NotImplementedError` remains
+- all pages run without crashing
+- 3AFC pages stay locked until shared/page TODOs are implemented
+- lint and tests pass
 
-Run app:
-```sh
-uv run streamlit run app.py
-```
+## Validation Steps
 
-Run tests:
-```sh
-uv run pytest
-```
+1. Run `uv run ruff check .`
+2. Run `uv run pytest`
+3. Run app and test each page manually
 
-Lint:
-```sh
-uv run ruff check .
-```
+## If You Are New To Coding
+
+Use this workflow:
+
+1. Implement one function.
+2. Run app and test immediately.
+3. If it fails, read traceback from top to bottom.
+4. Fix one error at a time.
+5. Move to next function only after current one works.
+
+## Help Order
+
+1. [docs/student_functions.md](student_functions.md)
+2. [docs/app_logic.md](app_logic.md)
+3. [docs/install.md](install.md)
