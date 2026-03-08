@@ -6,22 +6,51 @@ This guide focuses on reliable setup and fast recovery when something fails.
 
 - Python 3.11 or newer
 - Internet connection for dependency resolution
-- Terminal access (`Terminal` on macOS, `PowerShell` on Windows)
+- Terminal access (`Terminal` on macOS/Linux, `PowerShell` or `Git Bash` on Windows)
 
-## Standard Setup
+## Before You Start (Beginner Checklist)
 
-From the project root:
+1. Confirm you can open a terminal.
+2. Confirm you can access the project folder.
+3. Install `uv` from: https://docs.astral.sh/uv/getting-started/installation/
+4. Close and reopen your terminal after installing `uv`.
+
+## Get The Project Code
+
+Choose one approach.
+
+### Option A: Clone with Git
 
 ```sh
-make run
+git clone https://github.com/priyanshum17/healthsensing
+cd healthsensing
 ```
 
-This command installs prerequisites (via `uv`) and starts Streamlit at
-`http://localhost:8501`.
+If already cloned:
 
-## Windows: If `make` Does Not Work
+```sh
+cd healthsensing
+git pull
+```
 
-Use this fallback flow directly in PowerShell:
+### Option B: Download ZIP from GitHub
+
+1. Open the repository on GitHub.
+2. Click `Code` -> `Download ZIP`.
+3. Extract the archive.
+4. Open terminal in the extracted `healthsensing` folder.
+
+## Standard Setup Commands
+
+### macOS/Linux
+
+```sh
+uv python install 3.11
+UV_CACHE_DIR=.uv-cache uv sync
+UV_CACHE_DIR=.uv-cache uv run streamlit run app.py
+```
+
+### Windows PowerShell
 
 ```powershell
 uv python install 3.11
@@ -30,64 +59,17 @@ uv sync
 uv run streamlit run app.py
 ```
 
-If port `8501` is occupied:
+### Windows Git Bash
 
-```powershell
-uv run streamlit run app.py --server.port 8502
-```
-
-## Manual Setup (Any OS)
-
-Use this when you do not want to use Make:
-
-```sh
+```bash
 uv python install 3.11
 UV_CACHE_DIR=.uv-cache uv sync
 UV_CACHE_DIR=.uv-cache uv run streamlit run app.py
 ```
 
-## Platform-Specific Notes
-
-### macOS
-
-If command line tools are missing:
-
-```sh
-xcode-select --install
-```
-
-If `uv` is not in PATH, add this to `~/.zshrc`:
-
-```sh
-export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
-```
-
-Then reload:
-
-```sh
-source ~/.zshrc
-```
-
-### Windows
-
-If execution policy blocks scripts:
-
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-```
-
-If you want to install `make`, use one of these:
-
-- Chocolatey: `choco install make`
-- Scoop: `scoop install main/make`
-- Git Bash (if already installed)
+When the app starts, open `http://localhost:8501`.
 
 ## Symptom-Based Troubleshooting
-
-### `make` command not found
-
-Cause: no GNU Make in current shell.  
-Fix: use the Windows fallback block above, or install `make`.
 
 ### `uv` command not found
 
@@ -108,7 +90,7 @@ UV_CACHE_DIR=.uv-cache uv sync
 UV_CACHE_DIR=.uv-cache uv run streamlit run app.py
 ```
 
-PowerShell variant:
+PowerShell version:
 
 ```powershell
 $env:UV_CACHE_DIR = ".uv-cache"
@@ -153,17 +135,41 @@ Fix sequence:
 1. Confirm network access.
 2. Remove environment and reinstall:
 
-```sh
-make clean
-make run
-```
+macOS/Linux or Git Bash:
 
-If Make is unavailable:
-
-```sh
+```bash
 rm -rf .venv
 UV_CACHE_DIR=.uv-cache uv sync
+UV_CACHE_DIR=.uv-cache uv run streamlit run app.py
 ```
+
+PowerShell:
+
+```powershell
+Remove-Item -Recurse -Force .venv -ErrorAction SilentlyContinue
+$env:UV_CACHE_DIR = ".uv-cache"
+uv sync
+uv run streamlit run app.py
+```
+
+### Git is not recognized (Windows)
+
+Cause: Git not installed, or terminal needs restart.  
+Fix:
+
+1. Install Git for Windows: https://gitforwindows.org
+2. Close all terminals.
+3. Open a new PowerShell or Git Bash window.
+4. Run `git --version` to verify.
+
+### You downloaded ZIP and cannot run commands in the right folder
+
+Cause: terminal is not in the project root folder.  
+Fix:
+
+1. In terminal, run `pwd` (or `Get-Location` in PowerShell).
+2. Change directory to the folder containing `app.py`.
+3. Re-run setup commands.
 
 ## Reporting Issues
 
