@@ -54,7 +54,8 @@ def student_build_preview_triplets(
         - Use `seed` so output is reproducible.
         - Letters must come only from `letters_pool`.
     """
-    raise NotImplementedError("Student TODO: implement preview row generation.")
+    rng = random.Random(seed)
+    return ["".join(rng.choice(letters_pool) for _ in range(3)) for _ in range(rows)]
 
 
 def student_compute_contrast_levels(*, rows: int, step_log10: float) -> list[float]:
@@ -66,7 +67,7 @@ def student_compute_contrast_levels(*, rows: int, step_log10: float) -> list[flo
         - Use fixed log decrement: 100 * 10^(-row_index * step_log10).
         - Values should be floats in percent units.
     """
-    raise NotImplementedError("Student TODO: implement contrast schedule.")
+    return [100.0 * (10 ** (-(idx * step_log10))) for idx in range(rows)]
 
 
 def student_advance_contrast_state(
@@ -83,7 +84,13 @@ def student_advance_contrast_state(
         - If user reaches last level and says yes: finish.
         - Return `(next_index, finished)`.
     """
-    raise NotImplementedError("Student TODO: implement progression update.")
+    if not response_yes:
+        return trial_index, True
+
+    next_index = trial_index + 1
+    if next_index >= total_levels:
+        return max(0, total_levels - 1), True
+    return next_index, False
 
 
 with st.expander("Assignment TODOs (Edit This Page)"):

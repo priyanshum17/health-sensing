@@ -64,7 +64,19 @@ def student_build_amplitude_intervals_audio(
         - Two intervals at baseline amplitude.
         - One interval at louder target amplitude derived from `delta_db`.
     """
-    raise NotImplementedError("Student TODO: implement 3-interval amplitude audio builder.")
+    ratio = 10 ** (delta_db / 20.0)
+    target_amplitude = max(0.01, min(0.95, baseline_amplitude * ratio))
+    clips: list[bytes] = []
+    for idx in range(3):
+        amp = target_amplitude if idx == target_index else baseline_amplitude
+        clips.append(
+            single_tone_wav(
+                frequency_hz=float(reference_hz),
+                duration_s=float(cfg["tone_duration_s"]),
+                amplitude=amp,
+            )
+        )
+    return clips
 
 
 def student_apply_reversal_update(
@@ -84,12 +96,40 @@ def student_apply_reversal_update(
         - Return `(next_level, next_correct_streak)`.
         - Clamp level to bounds.
     """
-    raise NotImplementedError("Student TODO: implement reversal step update.")
+    next_streak = correct_streak
+    next_level = current_level
+    if is_correct:
+        next_streak += 1
+        if next_streak >= down_n:
+            next_level = current_level - step
+            next_streak = 0
+    else:
+        next_streak = 0
+        next_level = current_level + step
+    next_level = max(min_level, min(max_level, next_level))
+    return float(next_level), int(next_streak)
 
 
 def student_plot_staircase(history: list[dict], threshold: float, y_label: str, title: str) -> None:
     """TODO (student): Plot staircase history with matplotlib."""
-    raise NotImplementedError("Student TODO: implement staircase plotting.")
+    import matplotlib.pyplot as plt
+
+    trials = list(range(1, len(history) + 1))
+    levels = [float(item["level"]) for item in history]
+    correct = [bool(item["correct"]) for item in history]
+    colors = ["#2E7D32" if item else "#C62828" for item in correct]
+
+    fig, ax = plt.subplots(figsize=(8, 3.5))
+    ax.plot(trials, levels, color="#1565C0", linewidth=1.6, label="Level")
+    ax.scatter(trials, levels, c=colors, s=25, alpha=0.9, label="Trial Response")
+    ax.axhline(threshold, color="#6A1B9A", linestyle="--", linewidth=1.3, label="Threshold")
+    ax.set_xlabel("Trial Number")
+    ax.set_ylabel(y_label)
+    ax.set_title(title)
+    ax.grid(alpha=0.25)
+    ax.legend(loc="best")
+    st.pyplot(fig)
+    plt.close(fig)
 
 
 with st.expander("Assignment TODOs (Edit This Page)"):

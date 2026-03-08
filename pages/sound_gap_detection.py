@@ -63,7 +63,18 @@ def student_build_gap_intervals_audio(
         - Non-target intervals should have 0 ms gap.
         - Use deterministic seeding.
     """
-    raise NotImplementedError("Student TODO: implement 3-interval gap audio builder.")
+    clips: list[bytes] = []
+    for idx in range(3):
+        interval_gap_ms = gap_ms if idx == target_index else 0.0
+        clips.append(
+            noise_burst_with_gap_wav(
+                duration_s=float(cfg["playback"]["burst_duration_s"]),
+                gap_ms=interval_gap_ms,
+                amplitude=amplitude,
+                seed=seed + idx,
+            )
+        )
+    return clips
 
 
 def student_apply_reversal_update(
@@ -83,7 +94,18 @@ def student_apply_reversal_update(
         - Return `(next_level, next_correct_streak)`.
         - Clamp `next_level` to bounds.
     """
-    raise NotImplementedError("Student TODO: implement reversal step update.")
+    next_streak = correct_streak
+    next_level = current_level
+    if is_correct:
+        next_streak += 1
+        if next_streak >= down_n:
+            next_level = current_level - step
+            next_streak = 0
+    else:
+        next_streak = 0
+        next_level = current_level + step
+    next_level = max(min_level, min(max_level, next_level))
+    return float(next_level), int(next_streak)
 
 
 def student_plot_staircase(history: list[dict], threshold: float, y_label: str, title: str) -> None:
@@ -95,7 +117,24 @@ def student_plot_staircase(history: list[dict], threshold: float, y_label: str, 
         - Mark correct vs incorrect responses with colors.
         - Draw threshold as horizontal dashed line.
     """
-    raise NotImplementedError("Student TODO: implement staircase plotting.")
+    import matplotlib.pyplot as plt
+
+    trials = list(range(1, len(history) + 1))
+    levels = [float(item["level"]) for item in history]
+    correct = [bool(item["correct"]) for item in history]
+    colors = ["#2E7D32" if item else "#C62828" for item in correct]
+
+    fig, ax = plt.subplots(figsize=(8, 3.5))
+    ax.plot(trials, levels, color="#1565C0", linewidth=1.6, label="Level")
+    ax.scatter(trials, levels, c=colors, s=25, alpha=0.9, label="Trial Response")
+    ax.axhline(threshold, color="#6A1B9A", linestyle="--", linewidth=1.3, label="Threshold")
+    ax.set_xlabel("Trial Number")
+    ax.set_ylabel(y_label)
+    ax.set_title(title)
+    ax.grid(alpha=0.25)
+    ax.legend(loc="best")
+    st.pyplot(fig)
+    plt.close(fig)
 
 
 with st.expander("Assignment TODOs (Edit This Page)"):

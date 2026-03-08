@@ -49,7 +49,8 @@ def student_next_size_index(*, current_index: int, is_correct: bool, max_index: 
         - Incorrect response -> decrease index by 1 (larger optotype).
         - Clamp to `[0, max_index]`.
     """
-    raise NotImplementedError("Student TODO: implement adaptive size step.")
+    delta = 1 if is_correct else -1
+    return max(0, min(max_index, current_index + delta))
 
 
 def student_build_trial_log_row(
@@ -67,7 +68,15 @@ def student_build_trial_log_row(
         - Include correctness flag based on response match.
         - Round MAR to 2 decimals for display.
     """
-    raise NotImplementedError("Student TODO: implement trial log row builder.")
+    is_correct = response == correct_orientation
+    return {
+        "Trial": trial_no,
+        "Size (px)": size_px,
+        "MAR (arcmin)": round(mar_arcmin, 2),
+        "Correct Orientation": correct_orientation,
+        "Your Response": response,
+        "Correct": "Yes" if is_correct else "No",
+    }
 
 
 with st.expander("Assignment TODOs (Edit This Page)"):

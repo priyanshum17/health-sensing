@@ -54,7 +54,13 @@ def student_tone_preset(
         - Return `(frequency_hz, amplitude)` tuple.
         - Keep frequency in app limits (20..20000) and amplitude in (0, 1].
     """
-    raise NotImplementedError("Student TODO: implement difficulty preset.")
+    mapping = {
+        "easy": (default_frequency_hz, 0.35),
+        "medium": (min(20_000, int(default_frequency_hz * 1.8)), 0.25),
+        "hard": (min(20_000, int(default_frequency_hz * 3.0)), 0.15),
+    }
+    frequency_hz, amplitude = mapping.get(level, mapping["easy"])
+    return max(20, min(20_000, frequency_hz)), max(0.01, min(1.0, amplitude))
 
 
 def student_estimate_audible_bounds(
@@ -69,7 +75,14 @@ def student_estimate_audible_bounds(
         - Return `(lowest_heard_hz, highest_heard_hz)`.
         - Handle empty/no-heard cases with safe defaults.
     """
-    raise NotImplementedError("Student TODO: implement audible-bound estimation.")
+    heard_hz = [hz for hz, heard in zip(probe_history_hz, heard_flags) if heard]
+    if not heard_hz:
+        if probe_history_hz:
+            low = min(probe_history_hz)
+            high = max(probe_history_hz)
+            return low, high
+        return 20, 20_000
+    return min(heard_hz), max(heard_hz)
 
 
 with st.expander("Assignment TODOs (Edit This Page)"):
