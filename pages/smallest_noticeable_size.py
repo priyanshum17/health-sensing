@@ -41,6 +41,57 @@ SIZE_LEVELS_PX = [int(v) for v in cfg["size_levels_px"]]
 ORIENTATIONS = ["Up", "Down", "Left", "Right"]
 
 
+def student_next_size_index(*, current_index: int, is_correct: bool, max_index: int) -> int:
+    """TODO (student): Compute the next Tumbling-E size index.
+
+    Requirements:
+        - Correct response -> increase index by 1 (smaller optotype).
+        - Incorrect response -> decrease index by 1 (larger optotype).
+        - Clamp to `[0, max_index]`.
+    """
+    raise NotImplementedError("Student TODO: implement adaptive size step.")
+
+
+def student_build_trial_log_row(
+    *,
+    trial_no: int,
+    size_px: int,
+    mar_arcmin: float,
+    correct_orientation: str,
+    response: str,
+) -> dict[str, str | int | float]:
+    """TODO (student): Build one trial-log row.
+
+    Requirements:
+        - Return the same schema used by the table in this page.
+        - Include correctness flag based on response match.
+        - Round MAR to 2 decimals for display.
+    """
+    raise NotImplementedError("Student TODO: implement trial log row builder.")
+
+
+with st.expander("Assignment TODOs (Edit This Page)"):
+    st.markdown(
+        "- Implement `student_next_size_index`.\n"
+        "- Implement `student_build_trial_log_row`.\n"
+        "- Keep existing table column names."
+    )
+
+try:
+    _ = student_next_size_index(current_index=0, is_correct=True, max_index=len(SIZE_LEVELS_PX) - 1)
+    _ = student_build_trial_log_row(
+        trial_no=1,
+        size_px=SIZE_LEVELS_PX[0],
+        mar_arcmin=1.0,
+        correct_orientation="Up",
+        response="Up",
+    )
+except NotImplementedError as error:
+    st.error(str(error))
+    st.info("This page is locked until the student TODO functions are implemented.")
+    st.stop()
+
+
 def init_tumbling_state() -> dict:
     key = "tumbling_e_state"
     if key not in st.session_state:
@@ -144,20 +195,19 @@ with st.container(border=True):
     )
     if submitted:
         is_correct = response == current_orientation
-        if is_correct:
-            next_index = min(current_index + 1, len(SIZE_LEVELS_PX) - 1)
-        else:
-            next_index = max(current_index - 1, 0)
-
+        next_index = student_next_size_index(
+            current_index=current_index,
+            is_correct=is_correct,
+            max_index=len(SIZE_LEVELS_PX) - 1,
+        )
         state["history"].append(
-            {
-                "Trial": len(state["history"]) + 1,
-                "Size (px)": current_size_px,
-                "MAR (arcmin)": round(current_mar, 2),
-                "Correct Orientation": current_orientation,
-                "Your Response": response,
-                "Correct": "Yes" if is_correct else "No",
-            }
+            student_build_trial_log_row(
+                trial_no=len(state["history"]) + 1,
+                size_px=current_size_px,
+                mar_arcmin=current_mar,
+                correct_orientation=current_orientation,
+                response=response,
+            )
         )
 
         state["size_index"] = next_index
@@ -169,11 +219,11 @@ with st.container(border=True):
     st.subheader("Trial Log")
     history = state["history"]
     if history:
-        st.dataframe(history, width="stretch", hide_index=True) # type: ignore
+        st.dataframe(history, width="stretch", hide_index=True)
         wrong_only = [row for row in history if row["Correct"] == "No"]
         st.markdown("**Incorrect Responses**")
         if wrong_only:
-            st.dataframe(wrong_only, width="stretch", hide_index=True) # type: ignore
+            st.dataframe(wrong_only, width="stretch", hide_index=True)
         else:
             st.caption("No incorrect responses yet.")
     else:
@@ -181,7 +231,7 @@ with st.container(border=True):
 
 with st.container(border=True):
     st.subheader("Test Controls")
-    if st.button("Restart Staircase", width="stretch"): # pyright: ignore[reportCallIssue]
+    if st.button("Restart Staircase", width="stretch"):
         st.session_state.pop("tumbling_e_state", None)
         st.session_state.pop(feedback_key, None)
         st.rerun()

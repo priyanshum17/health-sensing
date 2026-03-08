@@ -41,13 +41,89 @@ def format_frequency_hz(frequency_hz: int) -> str:
         return f"{frequency_hz} Hz"
     return f"{frequency_hz / 1000:.2f} kHz"
 
+
+def student_tone_preset(
+    *,
+    level: str,
+    default_frequency_hz: int,
+) -> tuple[int, float]:
+    """TODO (student): Map easy/medium/hard level to tone settings.
+
+    Requirements:
+        - Accept `level` in {"easy", "medium", "hard"}.
+        - Return `(frequency_hz, amplitude)` tuple.
+        - Keep frequency in app limits (20..20000) and amplitude in (0, 1].
+    """
+    raise NotImplementedError("Student TODO: implement difficulty preset.")
+
+
+def student_estimate_audible_bounds(
+    *,
+    probe_history_hz: list[int],
+    heard_flags: list[bool],
+) -> tuple[int, int]:
+    """TODO (student): Estimate lower/upper audible bounds from probes.
+
+    Requirements:
+        - Inputs are aligned lists of tested frequency and heard/not-heard.
+        - Return `(lowest_heard_hz, highest_heard_hz)`.
+        - Handle empty/no-heard cases with safe defaults.
+    """
+    raise NotImplementedError("Student TODO: implement audible-bound estimation.")
+
+
+with st.expander("Assignment TODOs (Edit This Page)"):
+    st.markdown(
+        "- Implement `student_tone_preset` to create easy/medium/hard probe tones.\n"
+        "- Implement `student_estimate_audible_bounds` using probe results."
+    )
+
+try:
+    preset_hz, preset_amp = student_tone_preset(
+        level="easy",
+        default_frequency_hz=int(cfg["frequency_hz"]["default"]),
+    )
+    estimated_low, estimated_high = student_estimate_audible_bounds(
+        probe_history_hz=[125, 250, 500, 1000],
+        heard_flags=[True, True, True, False],
+    )
+except NotImplementedError as error:
+    st.error(str(error))
+    st.info("This page is locked until the student TODO functions are implemented.")
+    st.stop()
+
+if not (int(cfg["frequency_hz"]["min"]) <= int(preset_hz) <= int(cfg["frequency_hz"]["max"])):
+    st.error("`student_tone_preset` returned out-of-range frequency.")
+    st.stop()
+if not (0.0 < float(preset_amp) <= 1.0):
+    st.error("`student_tone_preset` returned invalid amplitude.")
+    st.stop()
+if int(estimated_low) > int(estimated_high):
+    st.error("`student_estimate_audible_bounds` returned invalid bounds.")
+    st.stop()
+
+with st.container(border=True):
+    st.subheader("Preset And Bounds Check")
+    level = st.selectbox("Difficulty preset", ["easy", "medium", "hard"])
+    preset_hz, preset_amp = student_tone_preset(
+        level=level,
+        default_frequency_hz=int(cfg["frequency_hz"]["default"]),
+    )
+    col_1, col_2 = st.columns(2)
+    col_1.metric("Preset Frequency", f"{int(preset_hz)} Hz")
+    col_2.metric("Preset Amplitude", f"{float(preset_amp):.2f}")
+    st.caption(
+        f"Example estimated bounds from sample probes: {int(estimated_low)} Hz to "
+        f"{int(estimated_high)} Hz"
+    )
+
 with st.container(border=True):
     st.subheader("Tone Playback")
     frequency_hz = st.number_input(
         "Exact test frequency (Hz)",
         min_value=int(cfg["frequency_hz"]["min"]),
         max_value=int(cfg["frequency_hz"]["max"]),
-        value=int(cfg["frequency_hz"]["default"]),
+        value=int(preset_hz),
         step=int(cfg["frequency_hz"]["step"]),
         key="pitch_playback_input",
     )
@@ -55,7 +131,7 @@ with st.container(border=True):
         "Playback amplitude",
         min_value=float(cfg["playback_amplitude"]["min"]),
         max_value=float(cfg["playback_amplitude"]["max"]),
-        value=float(cfg["playback_amplitude"]["default"]),
+        value=float(preset_amp),
         step=float(cfg["playback_amplitude"]["step"]),
     )
     st.audio(single_tone_wav(frequency_hz=frequency_hz, amplitude=amplitude), format="audio/wav")

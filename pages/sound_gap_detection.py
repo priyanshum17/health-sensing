@@ -47,6 +47,64 @@ render_instructions(
 config = load_test_config()
 cfg = config["gap_detection"]
 
+
+def student_build_gap_intervals_audio(
+    *,
+    gap_ms: float,
+    amplitude: float,
+    target_index: int,
+    seed: int,
+) -> list[bytes]:
+    """TODO (student): Build 3 interval audio clips for gap detection.
+
+    Requirements:
+        - Return a list of exactly 3 WAV byte payloads.
+        - Only interval `target_index` should contain `gap_ms`.
+        - Non-target intervals should have 0 ms gap.
+        - Use deterministic seeding.
+    """
+    raise NotImplementedError("Student TODO: implement 3-interval gap audio builder.")
+
+
+def student_apply_reversal_update(
+    *,
+    current_level: float,
+    step: float,
+    is_correct: bool,
+    correct_streak: int,
+    down_n: int,
+    min_level: float,
+    max_level: float,
+) -> tuple[float, int]:
+    """TODO (student): Apply one staircase update for response correctness.
+
+    Requirements:
+        - Implement 2-down/1-up style level update.
+        - Return `(next_level, next_correct_streak)`.
+        - Clamp `next_level` to bounds.
+    """
+    raise NotImplementedError("Student TODO: implement reversal step update.")
+
+
+def student_plot_staircase(history: list[dict], threshold: float, y_label: str, title: str) -> None:
+    """TODO (student): Plot staircase history with matplotlib.
+
+    Requirements:
+        - X-axis: trial number.
+        - Y-axis: level value.
+        - Mark correct vs incorrect responses with colors.
+        - Draw threshold as horizontal dashed line.
+    """
+    raise NotImplementedError("Student TODO: implement staircase plotting.")
+
+
+with st.expander("Assignment TODOs (Edit This Page)"):
+    st.markdown(
+        "- Implement `student_build_gap_intervals_audio`.\n"
+        "- Implement `student_apply_reversal_update`.\n"
+        "- Implement `student_plot_staircase`."
+    )
+
 adaptive = init_adaptive_state(
     "gap",
     start_level=float(cfg["adaptive"]["start_level"]),

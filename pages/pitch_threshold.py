@@ -48,6 +48,56 @@ render_instructions(
 config = load_test_config()
 cfg = config["pitch_discrimination"]
 
+
+def student_build_pitch_intervals_audio(
+    *,
+    reference_hz: int,
+    delta_hz: float,
+    amplitude: float,
+    target_index: int,
+) -> list[bytes]:
+    """TODO (student): Build 3 interval audio clips for pitch discrimination.
+
+    Requirements:
+        - Return exactly 3 WAV clips.
+        - Two intervals use `reference_hz`.
+        - One interval uses `reference_hz + delta_hz`.
+    """
+    raise NotImplementedError("Student TODO: implement 3-interval pitch audio builder.")
+
+
+def student_apply_reversal_update(
+    *,
+    current_level: float,
+    step: float,
+    is_correct: bool,
+    correct_streak: int,
+    down_n: int,
+    min_level: float,
+    max_level: float,
+) -> tuple[float, int]:
+    """TODO (student): Apply one staircase update for pitch thresholding.
+
+    Requirements:
+        - Implement 2-down/1-up style update.
+        - Return `(next_level, next_correct_streak)`.
+        - Clamp level to bounds.
+    """
+    raise NotImplementedError("Student TODO: implement reversal step update.")
+
+
+def student_plot_staircase(history: list[dict], threshold: float, y_label: str, title: str) -> None:
+    """TODO (student): Plot staircase history with matplotlib."""
+    raise NotImplementedError("Student TODO: implement staircase plotting.")
+
+
+with st.expander("Assignment TODOs (Edit This Page)"):
+    st.markdown(
+        "- Implement `student_build_pitch_intervals_audio`.\n"
+        "- Implement `student_apply_reversal_update`.\n"
+        "- Implement `student_plot_staircase`."
+    )
+
 adaptive = init_adaptive_state(
     "pitch_threshold",
     start_level=float(cfg["adaptive"]["start_level"]),

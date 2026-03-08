@@ -38,7 +38,78 @@ cfg = config["greyscale"]
 letters = cfg["letters"]
 row_count = int(cfg["preview"]["rows"])
 log_step = float(cfg["preview"]["log_contrast_step"])
-contrast_levels_pct = [100.0 * (10 ** (-(idx * log_step))) for idx in range(row_count)]
+
+
+def student_build_preview_triplets(
+    *,
+    letters_pool: str,
+    rows: int,
+    seed: int,
+) -> list[str]:
+    """TODO (student): Build deterministic 3-letter preview rows.
+
+    Requirements:
+        - Return exactly `rows` strings.
+        - Each string must have 3 letters.
+        - Use `seed` so output is reproducible.
+        - Letters must come only from `letters_pool`.
+    """
+    raise NotImplementedError("Student TODO: implement preview row generation.")
+
+
+def student_compute_contrast_levels(*, rows: int, step_log10: float) -> list[float]:
+    """TODO (student): Compute contrast percentages for each Pelli row.
+
+    Requirements:
+        - Return list length = `rows`.
+        - Start at 100.0 for row 0.
+        - Use fixed log decrement: 100 * 10^(-row_index * step_log10).
+        - Values should be floats in percent units.
+    """
+    raise NotImplementedError("Student TODO: implement contrast schedule.")
+
+
+def student_advance_contrast_state(
+    *,
+    trial_index: int,
+    response_yes: bool,
+    total_levels: int,
+) -> tuple[int, bool]:
+    """TODO (student): Update trial index and finished flag.
+
+    Requirements:
+        - If response is yes: move to next level.
+        - If response is no: finish the run.
+        - If user reaches last level and says yes: finish.
+        - Return `(next_index, finished)`.
+    """
+    raise NotImplementedError("Student TODO: implement progression update.")
+
+
+with st.expander("Assignment TODOs (Edit This Page)"):
+    st.markdown(
+        "- Implement `student_build_preview_triplets`.\n"
+        "- Implement `student_compute_contrast_levels`.\n"
+        "- Implement `student_advance_contrast_state`.\n"
+        "- Keep function signatures unchanged."
+    )
+
+try:
+    contrast_levels_pct = student_compute_contrast_levels(rows=row_count, step_log10=log_step)
+    preview_triplets = student_build_preview_triplets(
+        letters_pool=letters,
+        rows=row_count,
+        seed=int(cfg["preview"]["seed"]),
+    )
+    _ = student_advance_contrast_state(trial_index=0, response_yes=True, total_levels=row_count)
+except NotImplementedError as error:
+    st.error(str(error))
+    st.info("This page is locked until the student TODO functions are implemented.")
+    st.stop()
+
+if len(contrast_levels_pct) != row_count or len(preview_triplets) != row_count:
+    st.error("Student function outputs are invalid. Check list lengths and return values.")
+    st.stop()
 
 
 def draw_letter_card(letter: str, contrast_pct: float) -> str:
@@ -70,16 +141,13 @@ with st.container(border=True):
     st.caption("Letter groups are shown from high contrast (top) to low contrast (bottom).")
     bg = int(cfg["background_rgb"])
     html_rows = []
-    rng = random.Random(int(cfg["preview"]["seed"]))
     for row_idx in range(row_count):
         contrast = 10 ** (-(row_idx * log_step))
         fg = int(max(0, min(255, bg * (1.0 - contrast))))
-        triplet = "".join(rng.choice(letters) for _ in range(3))
+        triplet = preview_triplets[row_idx]
         html_rows.append(
-            
-                f"<div style='letter-spacing:0.45rem; font-size:1.9rem; font-weight:700; "
-                f"color:rgb({fg},{fg},{fg}); margin:0.2rem 0;'>{triplet}</div>"
-            
+            f"<div style='letter-spacing:0.45rem; font-size:1.9rem; font-weight:700; "
+            f"color:rgb({fg},{fg},{fg}); margin:0.2rem 0;'>{triplet}</div>"
         )
     st.markdown(
         (
@@ -129,20 +197,23 @@ with st.container(border=True):
             }
         )
 
+        next_index, next_finished = student_advance_contrast_state(
+            trial_index=trial_index,
+            response_yes=can_identify,
+            total_levels=len(contrast_levels_pct),
+        )
+
         if can_identify:
             st.session_state["greyscale_pelli_threshold_pct"] = current_contrast_pct
-            next_index = trial_index + 1
-            if next_index >= len(contrast_levels_pct):
-                st.session_state["greyscale_pelli_finished"] = True
-            else:
-                st.session_state["greyscale_pelli_index"] = next_index
-                st.session_state["greyscale_pelli_letter"] = random.choice(letters)
         else:
             if trial_index > 0:
                 st.session_state["greyscale_pelli_threshold_pct"] = contrast_levels_pct[
                     trial_index - 1
                 ]
-            st.session_state["greyscale_pelli_finished"] = True
+        st.session_state["greyscale_pelli_index"] = min(next_index, len(contrast_levels_pct) - 1)
+        st.session_state["greyscale_pelli_finished"] = bool(next_finished)
+        if not next_finished:
+            st.session_state["greyscale_pelli_letter"] = random.choice(letters)
         st.rerun()
 
 threshold_pct = float(st.session_state["greyscale_pelli_threshold_pct"])

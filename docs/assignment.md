@@ -1,86 +1,142 @@
-# Assignment Details
+# Assignment: Human Sensing Lab (Easy to Medium)
 
-## Objective
+## Goal
 
-In this assignment, you will test and record the sensing limits of a person.  
-The goal is to build a practical understanding of the capabilities and limitations of human sensory organs.
+You will complete missing functions across the experiment pages to build core
+psychophysics behavior yourself.
 
-The focus is on:
+The app already provides structure and UI. Your task is to implement algorithmic
+parts in the `pages/` files.
 
-- Sight
-- Hearing
+## Editing Rule
 
-## Required Tests
+Edit only files in `pages/`.
 
-### Sight
+- Do not change function names/signatures for student TODO functions.
+- Keep existing UI sections and labels unless a TODO explicitly asks to add one.
 
-#### 1. Greyscale resolution
+## How To Work
 
-Compare two similar shades of gray by using one color for text and the other for the background.
+1. Open the project in VS Code.
+2. Open each page listed below.
+3. Search for `student_` function names and `Assignment TODOs`.
+4. Implement functions and test directly in the Streamlit UI.
 
-- Start from high contrast (pure black and white reference).
-- Reduce the contrast until the difference is no longer visible.
-- Record the threshold as a percentage of greyscale range.
-- Use this threshold to estimate bit resolution.
+## Vision Tasks
 
-Example: 9-bit resolution gives 512 levels, roughly about 2% per distinguishable step.
+## 1) Contrast Sensitivity (`pages/greyscale_resolution.py`)
 
-#### 2. Angular field of view
+Implement:
 
-With your head upright and fixed:
+- `student_build_preview_triplets`
+- `student_compute_contrast_levels`
+- `student_advance_contrast_state`
 
-- Move a high-contrast marker toward visual field edges.
-- Measure disappearance threshold in four directions: left, right, up, down.
-- Eye movement is allowed; head tilt/turn is not.
-- Report horizontal and vertical FOV in degrees.
+What you should learn:
 
-#### 3. Smallest noticeable size
+- deterministic preview generation using seeds
+- log-step contrast schedule
+- trial-state progression logic
 
-Display several lines with equal thickness and spacing (`t = d`).
+Expected behavior:
 
-- Increase distance between eyes and screen until exact line count is no longer distinguishable.
-- If the smallest on-screen target is still easy to identify, move farther from the display and continue.
-- Record that threshold distance.
-- Use thickness and distance to calculate angular resolution.
-- Report in arc minutes (`1 arcmin = 1/60 degree`).
+- Preview rows are reproducible for the same seed.
+- Contrast levels decrease per row using log spacing.
+- State advances correctly and stops at the right point.
 
-Hint: Thickness can be measured physically or derived from screen dimensions and resolution.
+## 2) Tumbling E (`pages/smallest_noticeable_size.py`)
 
-Approximation: angular resolution is related to `t / distance`.
+Implement:
 
-### Hearing
+- `student_next_size_index`
+- `student_build_trial_log_row`
 
-#### 4. Pitch frequency range
+What you should learn:
 
-- Play a slow frequency sweep from 20 Hz to 20 kHz.
-- Record the highest frequency that is still audible.
-- Target at least 100 Hz precision.
+- adaptive stepping (smaller on correct, larger on incorrect)
+- bounded index updates
+- structured trial logging for table display
 
-#### 5. Sound gap detection
+Expected behavior:
 
-- Play a continuous sound with a silence gap inserted in the middle.
-- Vary gap duration.
-- Find and report the smallest noticeable gap.
-- Report in milliseconds.
+- Size index always stays in valid range.
+- Log rows have consistent schema and correctness flag.
 
-#### 6. Amplitude threshold
+## Hearing Task (Non-3AFC)
 
-Use two tones of the same frequency (example: 440 Hz) separated by a short silence.
+## 3) Pitch Range Screening (`pages/pitch_frequency_range.py`)
 
-- First tone: baseline amplitude.
-- Second tone: slightly louder or quieter.
-- Reduce amplitude difference until louder/quieter judgment is no longer reliable.
-- Record the smallest detectable amplitude change (dB).
+Implement:
 
-Repeat at three baseline levels:
+- `student_tone_preset`
+- `student_estimate_audible_bounds`
 
-- Quiet
-- Normal listening
-- Moderately loud but comfortable
+What you should learn:
 
-Control requirements:
+- generating simple easy/medium/hard tone settings
+- deriving lower and upper audible estimates from probe outcomes
 
-- Keep device volume fixed.
-- Adjust loudness only within the app.
-- Use a relatively quiet environment.
-- Do not increase volume to uncomfortable levels.
+Expected behavior:
+
+- Presets always produce valid frequency/amplitude values.
+- Audible bounds are computed robustly from probe history.
+
+## 3AFC Tasks
+
+For all 3AFC pages, implement three categories:
+
+1. interval-audio builder
+2. reversal/staircase update logic
+3. matplotlib staircase plot
+
+## 4) Sound Gap 3AFC (`pages/sound_gap_detection.py`)
+
+Implement:
+
+- `student_build_gap_intervals_audio`
+- `student_apply_reversal_update`
+- `student_plot_staircase`
+
+## 5) Amplitude 3AFC (`pages/amplitude_threshold.py`)
+
+Implement:
+
+- `student_build_amplitude_intervals_audio`
+- `student_apply_reversal_update`
+- `student_plot_staircase`
+
+## 6) Pitch 3AFC (`pages/pitch_threshold.py`)
+
+Implement:
+
+- `student_build_pitch_intervals_audio`
+- `student_apply_reversal_update`
+- `student_plot_staircase`
+
+What you should learn from all 3AFC tasks:
+
+- creating three-interval forced-choice audio stimuli
+- adaptive reversal logic (2-down/1-up style)
+- visualizing trial level history with threshold estimate
+
+## Submission Checklist
+
+- All `student_...` functions are implemented.
+- App runs without `NotImplementedError`.
+- Each page shows expected interaction behavior.
+- 3AFC pages show a staircase plot after completion.
+
+## Suggested Validation
+
+- Run app:
+```sh
+uv run streamlit run app.py
+```
+- Run tests:
+```sh
+uv run pytest
+```
+- Optional lint:
+```sh
+uv run ruff check .
+```
