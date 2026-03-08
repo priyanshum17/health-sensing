@@ -86,7 +86,7 @@ def student_build_pitch_intervals_audio(
         - One clip at `reference_hz + delta_hz`.
         - Keep duration and amplitude consistent across intervals.
     """
-    raise NotImplementedError("Student TODO: implement 3-interval pitch audio builder.")
+    raise NotImplementedError("Not implemented yet; follow the docstring guidance.")
 
 
 def student_apply_reversal_update(

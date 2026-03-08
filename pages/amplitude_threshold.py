@@ -72,7 +72,7 @@ def student_build_amplitude_intervals_audio(
     Why this function exists:
         Each trial needs exactly three candidate sounds with one target interval.
         This function packages trial generation so the page can remain focused on UI
-        and adaptive logic, while students practice controlled stimulus design.
+        and adaptive logic while keeping stimulus creation testable.
 
     Inputs:
         baseline_amplitude: Reference amplitude for non-target intervals.
@@ -90,7 +90,7 @@ def student_build_amplitude_intervals_audio(
         - Use louder amplitude for `target_index`.
         - Return WAV bytes compatible with `st.audio`.
     """
-    raise NotImplementedError("Student TODO: implement 3-interval amplitude audio builder.")
+    raise NotImplementedError("Not implemented yet; follow the docstring guidance.")
 
 
 def student_apply_reversal_update(

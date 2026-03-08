@@ -45,46 +45,24 @@ def student_build_preview_triplets(
     rows: int,
     seed: int,
 ) -> list[str]:
-    """TODO (student): Build deterministic 3-letter preview rows.
+    """TODO: generate a deterministic preview chart.
 
-    Why this matters:
-        The preview chart should be reproducible for grading and debugging.
-        If two students use the same seed, they should see the same rows.
+    Return exactly `rows` strings, each three letters long, sampled from
+    `letters_pool` using a RNG initialized with `seed`. This helper keeps the
+    view consistent across reruns.
 
-    Inputs:
-        letters_pool: Allowed letters (for example: "CDHKNORSVZ").
-        rows: Number of rows required in the preview.
-        seed: Random seed for deterministic generation.
-
-    Output:
-        A list of length `rows`, where each item is a 3-letter string.
-
-    Implementation hints:
-        1. Create a local RNG with `random.Random(seed)`.
-        2. For each row, sample 3 letters from `letters_pool`.
-        3. Append the 3-letter string to the output list.
+    If `rows <= 0` or `letters_pool` is empty, return an empty list.
     """
-    raise NotImplementedError("Student TODO: implement preview row generation.")
+    raise NotImplementedError("Not implemented yet; follow the docstring guidance.")
 
 
 def student_compute_contrast_levels(*, rows: int, step_log10: float) -> list[float]:
-    """TODO (student): Compute contrast percentages for each Pelli row.
+    """TODO: return a log-spaced contrast schedule in percent.
 
-    Why this matters:
-        Pelli-style tasks use logarithmic contrast spacing. Students learn how
-        psychophysics uses controlled stimulus schedules.
-
-    Inputs:
-        rows: Number of contrast levels to generate.
-        step_log10: Log10 decrement per row.
-
-    Output:
-        A float list of contrast percentages (for example: 100, 70.8, ...).
-
-    Required formula:
-        contrast_percent = 100 * 10 ** (-(row_index * step_log10))
+    Use `contrast_percent = 100 * 10 ** (-(row_index * step_log10))` for
+    row_index 0..rows‑1. If `rows <= 0`, return an empty list.
     """
-    raise NotImplementedError("Student TODO: implement contrast schedule.")
+    raise NotImplementedError("Not implemented yet; follow the docstring guidance.")
 
 
 def student_advance_contrast_state(
@@ -93,50 +71,21 @@ def student_advance_contrast_state(
     response_yes: bool,
     total_levels: int,
 ) -> tuple[int, bool]:
-    """TODO (student): Update trial index and finished flag.
+    """TODO: advance the trial index or finish the run.
 
-    Why this matters:
-        This is the core control flow for the contrast staircase.
-        Correct progression logic ensures fair threshold estimation.
-
-    Inputs:
-        trial_index: Current contrast-level index.
-        response_yes: True if the user says they can identify the letter.
-        total_levels: Total number of available contrast levels.
-
-    Output:
-        `(next_index, finished)` where:
-        - `next_index` is the next trial index to use.
-        - `finished` tells the page whether to stop the run.
-
-    Rule summary:
-        - If response is "No", finish immediately.
-        - If response is "Yes", advance one level.
-        - If advancing goes past last level, finish.
+    Return `(next_index, finished)`. Finish if `response_yes` is False or when
+    advancing goes beyond `total_levels - 1`. Clamp `next_index` to valid range.
     """
-    raise NotImplementedError("Student TODO: implement progression update.")
+    raise NotImplementedError("Not implemented yet; follow the docstring guidance.")
 
 
 def student_compute_log_contrast_sensitivity(threshold_percent: float) -> float:
-    """TODO (student): Convert threshold percent to log contrast sensitivity.
+    """TODO: convert percent threshold to log contrast sensitivity.
 
-    Why this matters:
-        Raw threshold percent is useful, but log contrast sensitivity is a
-        standard normalized metric used for comparison.
-
-    Input:
-        threshold_percent: Threshold in percent units, such as 2.5.
-
-    Output:
-        A single float (log10 contrast sensitivity).
-
-    Formula:
-        logCS = log10(1 / (threshold_percent / 100))
-
-    Safety note:
-        Guard against division by zero when threshold is extremely small.
+    Use `log10(1 / (threshold_percent / 100))` and guard against zero or
+    negative thresholds to avoid math errors.
     """
-    raise NotImplementedError("Student TODO: implement log contrast sensitivity.")
+    raise NotImplementedError("Not implemented yet; follow the docstring guidance.")
 
 
 with st.expander("Assignment TODOs (Edit This Page)"):
@@ -245,7 +194,7 @@ with st.container(border=True):
     )
     if submitted and not finished:
         # LAB NOTE: This block drives the Pelli-style staircase progression.
-        # Students can extend it with stricter scoring rules (for example typed-letter checks).
+        # Optional extensions can add stricter scoring rules (for example typed-letter checks).
         can_identify = response == "Yes"
         st.session_state["greyscale_pelli_history"].append(
             {

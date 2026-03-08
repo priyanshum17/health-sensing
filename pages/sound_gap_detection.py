@@ -86,7 +86,7 @@ def student_build_gap_intervals_audio(
         - Keep amplitude consistent across all three clips.
         - Use deterministic seeds so repeated runs are reproducible.
     """
-    raise NotImplementedError("Student TODO: implement 3-interval gap audio builder.")
+    raise NotImplementedError("Not implemented yet; follow the docstring guidance.")
 
 
 def student_apply_reversal_update(

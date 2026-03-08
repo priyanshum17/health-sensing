@@ -47,28 +47,12 @@ def student_tone_preset(
     level: str,
     default_frequency_hz: int,
 ) -> tuple[int, float]:
-    """TODO (student): Map a difficulty label to a safe tone preset.
+    """TODO: convert a difficulty label to `(frequency_hz, amplitude)` values.
 
-    Why this function exists:
-        The page lets users start from easy/medium/hard settings instead of manual
-        tuning every time. This function is the single source of truth for those
-        presets, so all users begin with predictable frequency and loudness values.
-
-    Inputs:
-        level: Difficulty string in {"easy", "medium", "hard"}.
-        default_frequency_hz: Fallback value from config.
-
-    Output:
-        `(frequency_hz, amplitude)` where:
-        - `frequency_hz` is an integer in the app range [20, 20000].
-        - `amplitude` is a float in (0.0, 1.0].
-
-    Suggested strategy:
-        - Define one preset per level with progressively harder frequencies.
-        - Use `default_frequency_hz` as fallback for unknown or missing level.
-        - Clamp outputs to legal bounds before returning.
+    If the label is missing or unknown, return `(default_frequency_hz, default_amplitude)`
+    (from config). Make sure the returned values lie within the configured bounds.
     """
-    raise NotImplementedError("Student TODO: implement difficulty preset.")
+    raise NotImplementedError("Not implemented yet; follow the docstring guidance.")
 
 
 def student_estimate_audible_bounds(
@@ -76,48 +60,22 @@ def student_estimate_audible_bounds(
     probe_history_hz: list[int],
     heard_flags: list[bool],
 ) -> tuple[int, int]:
-    """TODO (student): Estimate audible low/high bounds from probe history.
+    """TODO: convert probe history into lower and upper heard bounds.
 
-    Why this function exists:
-        A raw list of heard/not-heard responses is hard to interpret quickly. This
-        helper summarizes probe data into a clean range students can report in lab
-        writeups and compare across participants.
-
-    Inputs:
-        probe_history_hz: Tested frequencies in Hz.
-        heard_flags: Boolean responses aligned by index (`True` if heard).
-
-    Output:
-        `(lowest_heard_hz, highest_heard_hz)` as integer bounds.
-
-    Required behavior:
-        - Treat the two lists as aligned trial history.
-        - Extract frequencies where `heard_flags[i]` is `True`.
-        - Return min/max of heard frequencies.
-        - For empty input or no heard tones, return safe fallback bounds.
+    Identify frequencies marked `True` in `heard_flags` and return their min and
+    max. If no tones were heard, return safe fallback values (for example the
+    default frequency).
     """
-    raise NotImplementedError("Student TODO: implement audible-bound estimation.")
+    raise NotImplementedError("Not implemented yet; follow the docstring guidance.")
 
 
 def student_validate_audio_params(*, frequency_hz: int, amplitude: float) -> bool:
-    """TODO (student): Validate frequency/amplitude before waveform generation.
+    """TODO: validate frequency and amplitude before synthesis.
 
-    Why this function exists:
-        Audio synthesis should fail early for illegal values. This keeps the UI
-        stable and teaches students to guard data before expensive operations.
-
-    Inputs:
-        frequency_hz: Tone frequency candidate.
-        amplitude: Loudness scalar.
-
-    Output:
-        `True` if parameters are inside legal ranges; otherwise `False`.
-
-    Minimum validation:
-        - Frequency in [20, 20000].
-        - Amplitude strictly greater than 0 and at most 1.
+    Return `True` when `frequency_hz` and `amplitude` fall within the config limits,
+    otherwise `False`.
     """
-    raise NotImplementedError("Student TODO: implement audio parameter validation.")
+    raise NotImplementedError("Not implemented yet; follow the docstring guidance.")
 
 
 with st.expander("Assignment TODOs (Edit This Page)"):

@@ -62,7 +62,7 @@ def student_next_size_index(*, current_index: int, is_correct: bool, max_index: 
         - Incorrect response: move to a larger optotype by decreasing index by 1.
         - Always clamp so index never goes below 0 or above `max_index`.
     """
-    raise NotImplementedError("Student TODO: implement adaptive size step.")
+    raise NotImplementedError("Not implemented yet; follow the docstring guidance.")
 
 
 def student_build_trial_log_row(
@@ -96,7 +96,7 @@ def student_build_trial_log_row(
         - Include correctness as an explicit readable value.
         - Round MAR to 2 decimals for stable, readable output.
     """
-    raise NotImplementedError("Student TODO: implement trial log row builder.")
+    raise NotImplementedError("Not implemented yet; follow the docstring guidance.")
 
 
 def student_validate_screen_geometry(
@@ -121,7 +121,7 @@ def student_validate_screen_geometry(
         - Pixel width is large enough to avoid divide-by-zero / tiny denominator.
         - Distance and width remain in realistic human-testing ranges.
     """
-    raise NotImplementedError("Student TODO: implement geometry validation.")
+    raise NotImplementedError("Not implemented yet; follow the docstring guidance.")
 
 
 def student_compute_mar_arcmin(size_px: int, mm_per_px: float, distance_cm: float) -> float:
@@ -145,7 +145,7 @@ def student_compute_mar_arcmin(size_px: int, mm_per_px: float, distance_cm: floa
         - Use a small-angle geometry formula, then convert radians to arcminutes.
         - Return a positive float and guard invalid denominators.
     """
-    raise NotImplementedError("Student TODO: implement MAR calculation.")
+    raise NotImplementedError("Not implemented yet; follow the docstring guidance.")
 
 
 def student_format_trial_log_row(
@@ -167,7 +167,7 @@ def student_format_trial_log_row(
         This function should return the same schema as `student_build_trial_log_row`,
         potentially by calling it internally and applying final formatting rules.
     """
-    raise NotImplementedError("Student TODO: implement trial log formatting.")
+    raise NotImplementedError("Not implemented yet; follow the docstring guidance.")
 
 
 with st.expander("Assignment TODOs (Edit This Page)"):
