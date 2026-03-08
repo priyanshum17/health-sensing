@@ -1,48 +1,57 @@
-# Installation and Troubleshooting
+# Installation and Troubleshooting Guide
 
-This guide focuses on reliable setup and fast recovery when something fails.
+This guide is written for students with little or no coding experience.
+Follow sections in order and do not skip steps.
 
-## Prerequisites
+## 1) What You Need
 
-- Python 3.11 or newer
-- Internet connection for dependency resolution
-- Terminal access (`Terminal` on macOS/Linux, `PowerShell` or `Git Bash` on Windows)
+- A computer with internet access
+- VS Code (recommended)
+- A terminal:
+  - macOS: Terminal
+  - Linux: terminal emulator
+  - Windows: PowerShell or Git Bash
 
-## Before You Start (Beginner Checklist)
+You do not need to install Python manually; `uv` will manage it.
 
-1. Confirm you can open a terminal.
-2. Confirm you can access the project folder.
-3. Install `uv` from: https://docs.astral.sh/uv/getting-started/installation/
-4. Close and reopen your terminal after installing `uv`.
+## 2) Get Project Files
 
-## Get The Project Code
+Choose one method.
 
-Choose one approach.
-
-### Option A: Clone with Git
+### Method A: Git Clone
 
 ```sh
 git clone https://github.com/priyanshum17/healthsensing
 cd healthsensing
 ```
 
-If already cloned:
+### Method B: GitHub ZIP Download
+
+1. Open repo page on GitHub.
+2. Click `Code` -> `Download ZIP`.
+3. Extract ZIP.
+4. Open extracted `healthsensing` folder in VS Code.
+5. Open terminal in that folder.
+
+Folder check:
+- You are in the correct folder if `app.py` is visible with `ls` (`dir` in PowerShell).
+
+## 3) Install `uv`
+
+Install from official guide:
+https://docs.astral.sh/uv/getting-started/installation/
+
+After installing, close terminal and open a new terminal window.
+
+Verify:
 
 ```sh
-cd healthsensing
-git pull
+uv --version
 ```
 
-### Option B: Download ZIP from GitHub
+## 4) Install Dependencies and Run
 
-1. Open the repository on GitHub.
-2. Click `Code` -> `Download ZIP`.
-3. Extract the archive.
-4. Open terminal in the extracted `healthsensing` folder.
-
-## Standard Setup Commands
-
-### macOS/Linux
+Run these commands exactly:
 
 ```sh
 uv python install 3.11
@@ -50,7 +59,11 @@ uv sync
 uv run streamlit run app.py
 ```
 
-### Windows PowerShell
+Open `http://localhost:8501` in your browser.
+
+## 5) Windows Command Examples
+
+### PowerShell
 
 ```powershell
 uv python install 3.11
@@ -58,7 +71,7 @@ uv sync
 uv run streamlit run app.py
 ```
 
-### Windows Git Bash
+### Git Bash
 
 ```bash
 uv python install 3.11
@@ -66,79 +79,63 @@ uv sync
 uv run streamlit run app.py
 ```
 
-When the app starts, open `http://localhost:8501`.
+If Git Bash is missing, install Git for Windows:
+https://gitforwindows.org
 
-## Symptom-Based Troubleshooting
+## 6) Daily Commands During Assignment
 
-### `uv` command not found
+Run app:
 
-Cause: `uv` not installed or not on PATH.  
+```sh
+uv run streamlit run app.py
+```
+
+Run tests:
+
+```sh
+uv run pytest
+```
+
+Run lint checks:
+
+```sh
+uv run ruff check .
+```
+
+## 7) Troubleshooting
+
+## `uv` command not found
+
 Fix:
+1. Install `uv` from official docs.
+2. Restart terminal.
+3. Run `uv --version`.
 
-- Install `uv`: https://docs.astral.sh/uv/getting-started/installation/
-- Restart terminal
-- Re-run commands
+## `git` command not found (Windows)
 
-### Permission error on uv cache path
+Fix:
+1. Install Git for Windows.
+2. Restart terminal.
+3. Run `git --version`.
 
-Cause: default cache directory blocked by environment policy.  
-Fix: force local cache directory:
+## Streamlit starts, but app page is blank or crashes
 
-```sh
-uv sync
-uv run streamlit run app.py
-```
-
-PowerShell version:
-
-```powershell
-uv sync
-uv run streamlit run app.py
-```
-
-### Python version mismatch
-
-Check:
-
-```sh
-python --version
-```
-
-Install required version:
-
-```sh
-uv python install 3.11
-```
-
-### Streamlit starts but app page is blank
-
-Fix sequence:
-
-1. Check terminal for import/runtime errors.
+Fix:
+1. Read terminal traceback.
 2. Hard refresh browser (`Ctrl+Shift+R` or `Cmd+Shift+R`).
-3. Restart Streamlit process.
+3. Restart Streamlit command.
 
-### Audio does not play
+## Import/dependency error (`ModuleNotFoundError`)
 
-Fix sequence:
+Fix:
+1. Run `uv sync` again.
+2. If still failing, delete `.venv` and reinstall.
 
-1. Verify OS output device.
-2. Verify browser tab is not muted.
-3. Try a different browser.
-
-### Dependency installation fails
-
-Fix sequence:
-
-1. Confirm network access.
-2. Remove environment and reinstall:
-
-macOS/Linux or Git Bash:
+macOS/Linux/Git Bash:
 
 ```bash
 rm -rf .venv
 uv sync
-uv run streamlit run app.py
 ```
 
 PowerShell:
@@ -146,33 +143,28 @@ PowerShell:
 ```powershell
 Remove-Item -Recurse -Force .venv -ErrorAction SilentlyContinue
 uv sync
-uv run streamlit run app.py
 ```
 
-### Git is not recognized (Windows)
+## No audio output
 
-Cause: Git not installed, or terminal needs restart.  
 Fix:
+1. Check system output device.
+2. Check browser tab mute state.
+3. Try another browser.
+4. Lower/raise amplitude in app and test again.
 
-1. Install Git for Windows: https://gitforwindows.org
-2. Close all terminals.
-3. Open a new PowerShell or Git Bash window.
-4. Run `git --version` to verify.
+## ZIP users: commands fail due to wrong folder
 
-### You downloaded ZIP and cannot run commands in the right folder
-
-Cause: terminal is not in the project root folder.  
 Fix:
-
-1. In terminal, run `pwd` (or `Get-Location` in PowerShell).
-2. Change directory to the folder containing `app.py`.
+1. Run `pwd` (PowerShell: `Get-Location`).
+2. Move to folder containing `app.py`.
 3. Re-run setup commands.
 
-## Reporting Issues
+## 8) Help Request Template
 
-When opening an issue, include:
+Include this when asking for help:
 
-- OS and version
-- Python version
-- full command run
-- full terminal output
+- OS and terminal type
+- exact command run
+- full terminal error output
+- whether you used Git clone or ZIP download

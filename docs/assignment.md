@@ -1,86 +1,122 @@
-# Assignment Details
+# Assignment Guide: Human Sensing Lab
 
-## Objective
+## Assignment Goal
 
-In this assignment, you will test and record the sensing limits of a person.  
-The goal is to build a practical understanding of the capabilities and limitations of human sensory organs.
+Implement student TODO functions so each experiment page runs correctly and safely.
+You are not expected to redesign the app UI or architecture.
 
-The focus is on:
+## What You Must Edit
 
-- Sight
-- Hearing
+Edit only `pages/` files.
 
-## Required Tests
+Required files:
 
-### Sight
+- `pages/greyscale_resolution.py`
+- `pages/smallest_noticeable_size.py`
+- `pages/pitch_frequency_range.py`
+- `pages/sound_gap_detection.py`
+- `pages/amplitude_threshold.py`
+- `pages/pitch_threshold.py`
+- `pages/_shared_3afc_student.py`
 
-#### 1. Greyscale resolution
+## Rules
 
-Compare two similar shades of gray by using one color for text and the other for the background.
+- Keep function names and signatures unchanged.
+- Do not remove instruction sections.
+- Keep outputs compatible with existing page code.
+- Handle invalid values safely (bounds checks, non-empty checks, divide-by-zero guards).
 
-- Start from high contrast (pure black and white reference).
-- Reduce the contrast until the difference is no longer visible.
-- Record the threshold as a percentage of greyscale range.
-- Use this threshold to estimate bit resolution.
+## Recommended Order (Easy to Hard)
 
-Example: 9-bit resolution gives 512 levels, roughly about 2% per distinguishable step.
+1. `greyscale_resolution.py`
+2. `smallest_noticeable_size.py`
+3. `pitch_frequency_range.py`
+4. `pages/_shared_3afc_student.py`
+5. `sound_gap_detection.py`
+6. `amplitude_threshold.py`
+7. `pitch_threshold.py`
 
-#### 2. Angular field of view
+## Experiments and Student Responsibilities
 
-With your head upright and fixed:
+## 1) Contrast Sensitivity
 
-- Move a high-contrast marker toward visual field edges.
-- Measure disappearance threshold in four directions: left, right, up, down.
-- Eye movement is allowed; head tilt/turn is not.
-- Report horizontal and vertical FOV in degrees.
+File: `pages/greyscale_resolution.py`
 
-#### 3. Smallest noticeable size
+Implement:
+- deterministic preview generation
+- log contrast level schedule
+- progression stop/advance logic
+- log contrast sensitivity calculation
 
-Display several lines with equal thickness and spacing (`t = d`).
+## 2) Tumbling E Visual Resolution
 
-- Increase distance between eyes and screen until exact line count is no longer distinguishable.
-- If the smallest on-screen target is still easy to identify, move farther from the display and continue.
-- Record that threshold distance.
-- Use thickness and distance to calculate angular resolution.
-- Report in arc minutes (`1 arcmin = 1/60 degree`).
+File: `pages/smallest_noticeable_size.py`
 
-Hint: Thickness can be measured physically or derived from screen dimensions and resolution.
+Implement:
+- adaptive size stepping
+- screen geometry validation
+- MAR conversion
+- consistent trial log row formatting
 
-Approximation: angular resolution is related to `t / distance`.
+## 3) Pitch Frequency Range Screening
 
-### Hearing
+File: `pages/pitch_frequency_range.py`
 
-#### 4. Pitch frequency range
+Implement:
+- easy/medium/hard preset mapping
+- heard-range estimation from probe history
+- audio parameter validation
 
-- Play a slow frequency sweep from 20 Hz to 20 kHz.
-- Record the highest frequency that is still audible.
-- Target at least 100 Hz precision.
+## 4) Shared 3AFC Core
 
-#### 5. Sound gap detection
+File: `pages/_shared_3afc_student.py`
 
-- Play a continuous sound with a silence gap inserted in the middle.
-- Vary gap duration.
-- Find and report the smallest noticeable gap.
-- Report in milliseconds.
+Implement shared helpers once:
+- staircase updates
+- target-mask generation
+- threshold estimate from reversals
+- recent accuracy metric
+- validation helper
+- staircase plotting helpers
 
-#### 6. Amplitude threshold
+## 5) 3AFC Stimulus Builders (Page-Specific)
 
-Use two tones of the same frequency (example: 440 Hz) separated by a short silence.
+Implement one page-specific audio builder per page:
 
-- First tone: baseline amplitude.
-- Second tone: slightly louder or quieter.
-- Reduce amplitude difference until louder/quieter judgment is no longer reliable.
-- Record the smallest detectable amplitude change (dB).
+- `pages/sound_gap_detection.py`: `student_build_gap_intervals_audio`
+- `pages/amplitude_threshold.py`: `student_build_amplitude_intervals_audio`
+- `pages/pitch_threshold.py`: `student_build_pitch_intervals_audio`
 
-Repeat at three baseline levels:
+These pages call your shared 3AFC logic from `pages/_shared_3afc_student.py`.
 
-- Quiet
-- Normal listening
-- Moderately loud but comfortable
+## Completion Definition
 
-Control requirements:
+You are done when:
 
-- Keep device volume fixed.
-- Adjust loudness only within the app.
-- Use a relatively quiet environment.
-- Do not increase volume to uncomfortable levels.
+- all required TODO functions are implemented
+- no assignment `NotImplementedError` remains
+- all pages run without crashing
+- 3AFC pages stay locked until shared/page TODOs are implemented
+- lint and tests pass
+
+## Validation Steps
+
+1. Run `uv run ruff check .`
+2. Run `uv run pytest`
+3. Run app and test each page manually
+
+## If You Are New To Coding
+
+Use this workflow:
+
+1. Implement one function.
+2. Run app and test immediately.
+3. If it fails, read traceback from top to bottom.
+4. Fix one error at a time.
+5. Move to next function only after current one works.
+
+## Help Order
+
+1. [docs/student_functions.md](student_functions.md)
+2. [docs/app_logic.md](app_logic.md)
+3. [docs/install.md](install.md)

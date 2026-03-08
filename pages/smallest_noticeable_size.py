@@ -1,4 +1,3 @@
-import math
 import random
 
 import streamlit as st
@@ -39,6 +38,174 @@ config = load_test_config()
 cfg = config["tumbling_e"]
 SIZE_LEVELS_PX = [int(v) for v in cfg["size_levels_px"]]
 ORIENTATIONS = ["Up", "Down", "Left", "Right"]
+
+
+def student_next_size_index(*, current_index: int, is_correct: bool, max_index: int) -> int:
+    """TODO (student): Compute the next adaptive size index for the staircase.
+
+    Why this function exists:
+        This is the core adaptive rule for the visual acuity task. The page calls it
+        after every response to decide whether the next Tumbling E should be harder
+        (smaller) or easier (larger). If this logic is wrong, the whole test becomes
+        invalid because stimulus difficulty no longer tracks performance.
+
+    Inputs:
+        current_index: Current index in `SIZE_LEVELS_PX`.
+        is_correct: Whether the student selected the correct orientation this trial.
+        max_index: Largest valid index in the size-level list.
+
+    Output:
+        The next valid index (integer) in the closed range `[0, max_index]`.
+
+    Required behavior:
+        - Correct response: move to a smaller optotype by increasing index by 1.
+        - Incorrect response: move to a larger optotype by decreasing index by 1.
+        - Always clamp so index never goes below 0 or above `max_index`.
+    """
+    raise NotImplementedError("Student TODO: implement adaptive size step.")
+
+
+def student_build_trial_log_row(
+    *,
+    trial_no: int,
+    size_px: int,
+    mar_arcmin: float,
+    correct_orientation: str,
+    response: str,
+) -> dict[str, str | int | float]:
+    """TODO (student): Build a complete, standardized row for the trial log table.
+
+    Why this function exists:
+        The experiment needs a clean row per trial for grading and analysis. This
+        function converts raw trial values into the exact display schema used later
+        by `st.dataframe`, so every row is consistent and easy to interpret.
+
+    Inputs:
+        trial_no: 1-based trial counter.
+        size_px: Rendered optotype size (pixels) for this trial.
+        mar_arcmin: Calculated MAR value for this size and setup.
+        correct_orientation: Ground-truth direction shown to the participant.
+        response: Participant-selected direction.
+
+    Output:
+        Dictionary with the exact table columns expected by this page, including a
+        correctness field derived from `response == correct_orientation`.
+
+    Required behavior:
+        - Keep column names consistent with existing table rendering.
+        - Include correctness as an explicit readable value.
+        - Round MAR to 2 decimals for stable, readable output.
+    """
+    raise NotImplementedError("Student TODO: implement trial log row builder.")
+
+
+def student_validate_screen_geometry(
+    *, distance_cm: float, screen_width_mm: float, screen_width_px: int
+) -> bool:
+    """TODO (student): Validate whether screen-geometry inputs are usable.
+
+    Why this function exists:
+        MAR calculations rely on physically meaningful geometry values. Invalid
+        distances or screen dimensions create nonsense results and confuse users.
+
+    Inputs:
+        distance_cm: Viewing distance in centimeters.
+        screen_width_mm: Physical display width in millimeters.
+        screen_width_px: Horizontal pixel resolution corresponding to width.
+
+    Output:
+        `True` when values are valid for computation; otherwise `False`.
+
+    Suggested checks:
+        - All values are positive.
+        - Pixel width is large enough to avoid divide-by-zero / tiny denominator.
+        - Distance and width remain in realistic human-testing ranges.
+    """
+    raise NotImplementedError("Student TODO: implement geometry validation.")
+
+
+def student_compute_mar_arcmin(size_px: int, mm_per_px: float, distance_cm: float) -> float:
+    """TODO (student): Compute MAR (minimum angle of resolution) in arcminutes.
+
+    Why this function exists:
+        Pixel size alone is device-dependent; MAR converts that size into a vision
+        metric that is comparable across screens and viewing distances.
+
+    Inputs:
+        size_px: Current optotype size in pixels.
+        mm_per_px: Pixel pitch (millimeters per pixel).
+        distance_cm: Viewing distance in centimeters.
+
+    Output:
+        MAR in arcminutes as a float.
+
+    Implementation guidance:
+        - Convert pixel size to millimeters (`size_px * mm_per_px`).
+        - Convert distance to matching units (millimeters).
+        - Use a small-angle geometry formula, then convert radians to arcminutes.
+        - Return a positive float and guard invalid denominators.
+    """
+    raise NotImplementedError("Student TODO: implement MAR calculation.")
+
+
+def student_format_trial_log_row(
+    *,
+    trial_no: int,
+    size_px: int,
+    mar_arcmin: float,
+    correct_orientation: str,
+    response: str,
+) -> dict[str, str | int | float]:
+    """TODO (student): Wrapper/formatter for a standardized trial-log row.
+
+    Why this function exists:
+        In many real codebases, one helper computes values and another helper
+        formats them for display. Keeping this function separate teaches modular
+        design and avoids spreading table-format logic across the page.
+
+    Expected use:
+        This function should return the same schema as `student_build_trial_log_row`,
+        potentially by calling it internally and applying final formatting rules.
+    """
+    raise NotImplementedError("Student TODO: implement trial log formatting.")
+
+
+with st.expander("Assignment TODOs (Edit This Page)"):
+    st.markdown(
+        "- Implement `student_next_size_index`.\n"
+        "- Implement `student_build_trial_log_row`.\n"
+        "- Implement `student_validate_screen_geometry`.\n"
+        "- Implement `student_compute_mar_arcmin`.\n"
+        "- Implement `student_format_trial_log_row`.\n"
+        "- Keep existing table column names."
+    )
+
+st.caption(
+    "How these functions connect: validate screen geometry -> convert size to MAR -> "
+    "log each trial consistently -> update index for next adaptive trial."
+)
+
+try:
+    _ = student_next_size_index(current_index=0, is_correct=True, max_index=len(SIZE_LEVELS_PX) - 1)
+    _ = student_build_trial_log_row(
+        trial_no=1,
+        size_px=SIZE_LEVELS_PX[0],
+        mar_arcmin=1.0,
+        correct_orientation="Up",
+        response="Up",
+    )
+except NotImplementedError as error:
+    st.error(str(error))
+    st.info("This page is locked until the student TODO functions are implemented.")
+    st.stop()
+
+if not student_validate_screen_geometry(
+    distance_cm=float(cfg["setup"]["distance_cm"]["default"]),
+    screen_width_mm=float(cfg["setup"]["screen_width_mm"]["default"]),
+    screen_width_px=int(cfg["setup"]["screen_width_px"]["default"]),
+):
+    st.error("Geometry validation function returned invalid result.")
+    st.stop()
 
 
 def init_tumbling_state() -> dict:
@@ -109,9 +276,7 @@ with st.container(border=True):
 
 
 def mar_arcmin_for_size(size_px: int, mm_per_px: float, distance_cm: float) -> float:
-    stroke_mm = (size_px * mm_per_px) / 5.0
-    distance_mm = distance_cm * 10.0
-    return math.degrees(math.atan(stroke_mm / distance_mm)) * 60.0
+    return student_compute_mar_arcmin(size_px=size_px, mm_per_px=mm_per_px, distance_cm=distance_cm)
 
 
 state = init_tumbling_state()
@@ -144,20 +309,19 @@ with st.container(border=True):
     )
     if submitted:
         is_correct = response == current_orientation
-        if is_correct:
-            next_index = min(current_index + 1, len(SIZE_LEVELS_PX) - 1)
-        else:
-            next_index = max(current_index - 1, 0)
-
+        next_index = student_next_size_index(
+            current_index=current_index,
+            is_correct=is_correct,
+            max_index=len(SIZE_LEVELS_PX) - 1,
+        )
         state["history"].append(
-            {
-                "Trial": len(state["history"]) + 1,
-                "Size (px)": current_size_px,
-                "MAR (arcmin)": round(current_mar, 2),
-                "Correct Orientation": current_orientation,
-                "Your Response": response,
-                "Correct": "Yes" if is_correct else "No",
-            }
+            student_build_trial_log_row(
+                trial_no=len(state["history"]) + 1,
+                size_px=current_size_px,
+                mar_arcmin=current_mar,
+                correct_orientation=current_orientation,
+                response=response,
+            )
         )
 
         state["size_index"] = next_index
@@ -169,11 +333,11 @@ with st.container(border=True):
     st.subheader("Trial Log")
     history = state["history"]
     if history:
-        st.dataframe(history, width="stretch", hide_index=True) # type: ignore
+        st.dataframe(history, width="stretch", hide_index=True)
         wrong_only = [row for row in history if row["Correct"] == "No"]
         st.markdown("**Incorrect Responses**")
         if wrong_only:
-            st.dataframe(wrong_only, width="stretch", hide_index=True) # type: ignore
+            st.dataframe(wrong_only, width="stretch", hide_index=True)
         else:
             st.caption("No incorrect responses yet.")
     else:
@@ -181,7 +345,7 @@ with st.container(border=True):
 
 with st.container(border=True):
     st.subheader("Test Controls")
-    if st.button("Restart Staircase", width="stretch"): # pyright: ignore[reportCallIssue]
+    if st.button("Restart Staircase", width="stretch"):
         st.session_state.pop("tumbling_e_state", None)
         st.session_state.pop(feedback_key, None)
         st.rerun()

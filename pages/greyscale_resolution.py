@@ -1,4 +1,3 @@
-import math
 import random
 
 import streamlit as st
@@ -38,7 +37,138 @@ cfg = config["greyscale"]
 letters = cfg["letters"]
 row_count = int(cfg["preview"]["rows"])
 log_step = float(cfg["preview"]["log_contrast_step"])
-contrast_levels_pct = [100.0 * (10 ** (-(idx * log_step))) for idx in range(row_count)]
+
+
+def student_build_preview_triplets(
+    *,
+    letters_pool: str,
+    rows: int,
+    seed: int,
+) -> list[str]:
+    """TODO (student): Build deterministic 3-letter preview rows.
+
+    Why this matters:
+        The preview chart should be reproducible for grading and debugging.
+        If two students use the same seed, they should see the same rows.
+
+    Inputs:
+        letters_pool: Allowed letters (for example: "CDHKNORSVZ").
+        rows: Number of rows required in the preview.
+        seed: Random seed for deterministic generation.
+
+    Output:
+        A list of length `rows`, where each item is a 3-letter string.
+
+    Implementation hints:
+        1. Create a local RNG with `random.Random(seed)`.
+        2. For each row, sample 3 letters from `letters_pool`.
+        3. Append the 3-letter string to the output list.
+    """
+    raise NotImplementedError("Student TODO: implement preview row generation.")
+
+
+def student_compute_contrast_levels(*, rows: int, step_log10: float) -> list[float]:
+    """TODO (student): Compute contrast percentages for each Pelli row.
+
+    Why this matters:
+        Pelli-style tasks use logarithmic contrast spacing. Students learn how
+        psychophysics uses controlled stimulus schedules.
+
+    Inputs:
+        rows: Number of contrast levels to generate.
+        step_log10: Log10 decrement per row.
+
+    Output:
+        A float list of contrast percentages (for example: 100, 70.8, ...).
+
+    Required formula:
+        contrast_percent = 100 * 10 ** (-(row_index * step_log10))
+    """
+    raise NotImplementedError("Student TODO: implement contrast schedule.")
+
+
+def student_advance_contrast_state(
+    *,
+    trial_index: int,
+    response_yes: bool,
+    total_levels: int,
+) -> tuple[int, bool]:
+    """TODO (student): Update trial index and finished flag.
+
+    Why this matters:
+        This is the core control flow for the contrast staircase.
+        Correct progression logic ensures fair threshold estimation.
+
+    Inputs:
+        trial_index: Current contrast-level index.
+        response_yes: True if the user says they can identify the letter.
+        total_levels: Total number of available contrast levels.
+
+    Output:
+        `(next_index, finished)` where:
+        - `next_index` is the next trial index to use.
+        - `finished` tells the page whether to stop the run.
+
+    Rule summary:
+        - If response is "No", finish immediately.
+        - If response is "Yes", advance one level.
+        - If advancing goes past last level, finish.
+    """
+    raise NotImplementedError("Student TODO: implement progression update.")
+
+
+def student_compute_log_contrast_sensitivity(threshold_percent: float) -> float:
+    """TODO (student): Convert threshold percent to log contrast sensitivity.
+
+    Why this matters:
+        Raw threshold percent is useful, but log contrast sensitivity is a
+        standard normalized metric used for comparison.
+
+    Input:
+        threshold_percent: Threshold in percent units, such as 2.5.
+
+    Output:
+        A single float (log10 contrast sensitivity).
+
+    Formula:
+        logCS = log10(1 / (threshold_percent / 100))
+
+    Safety note:
+        Guard against division by zero when threshold is extremely small.
+    """
+    raise NotImplementedError("Student TODO: implement log contrast sensitivity.")
+
+
+with st.expander("Assignment TODOs (Edit This Page)"):
+    st.markdown(
+        "- Implement `student_build_preview_triplets`.\n"
+        "- Implement `student_compute_contrast_levels`.\n"
+        "- Implement `student_advance_contrast_state`.\n"
+        "- Implement `student_compute_log_contrast_sensitivity`.\n"
+        "- Keep function signatures unchanged."
+    )
+
+st.caption(
+    "How these functions connect: generate deterministic preview rows -> compute contrast schedule "
+    "-> advance trial state based on responses -> compute final log contrast sensitivity."
+)
+
+try:
+    contrast_levels_pct = student_compute_contrast_levels(rows=row_count, step_log10=log_step)
+    preview_triplets = student_build_preview_triplets(
+        letters_pool=letters,
+        rows=row_count,
+        seed=int(cfg["preview"]["seed"]),
+    )
+    _ = student_advance_contrast_state(trial_index=0, response_yes=True, total_levels=row_count)
+except NotImplementedError as error:
+    st.error(str(error))
+    st.info("This page is locked until the student TODO functions are implemented.")
+    st.stop()
+
+if len(contrast_levels_pct) != row_count or len(preview_triplets) != row_count:
+    st.error("Student function outputs are invalid. Check list lengths and return values.")
+    st.stop()
 
 
 def draw_letter_card(letter: str, contrast_pct: float) -> str:
@@ -70,16 +200,13 @@ with st.container(border=True):
     st.caption("Letter groups are shown from high contrast (top) to low contrast (bottom).")
     bg = int(cfg["background_rgb"])
     html_rows = []
-    rng = random.Random(int(cfg["preview"]["seed"]))
     for row_idx in range(row_count):
         contrast = 10 ** (-(row_idx * log_step))
         fg = int(max(0, min(255, bg * (1.0 - contrast))))
-        triplet = "".join(rng.choice(letters) for _ in range(3))
+        triplet = preview_triplets[row_idx]
         html_rows.append(
-            
-                f"<div style='letter-spacing:0.45rem; font-size:1.9rem; font-weight:700; "
-                f"color:rgb({fg},{fg},{fg}); margin:0.2rem 0;'>{triplet}</div>"
-            
+            f"<div style='letter-spacing:0.45rem; font-size:1.9rem; font-weight:700; "
+            f"color:rgb({fg},{fg},{fg}); margin:0.2rem 0;'>{triplet}</div>"
         )
     st.markdown(
         (
@@ -129,24 +256,27 @@ with st.container(border=True):
             }
         )
 
+        next_index, next_finished = student_advance_contrast_state(
+            trial_index=trial_index,
+            response_yes=can_identify,
+            total_levels=len(contrast_levels_pct),
+        )
+
         if can_identify:
             st.session_state["greyscale_pelli_threshold_pct"] = current_contrast_pct
-            next_index = trial_index + 1
-            if next_index >= len(contrast_levels_pct):
-                st.session_state["greyscale_pelli_finished"] = True
-            else:
-                st.session_state["greyscale_pelli_index"] = next_index
-                st.session_state["greyscale_pelli_letter"] = random.choice(letters)
         else:
             if trial_index > 0:
                 st.session_state["greyscale_pelli_threshold_pct"] = contrast_levels_pct[
                     trial_index - 1
                 ]
-            st.session_state["greyscale_pelli_finished"] = True
+        st.session_state["greyscale_pelli_index"] = min(next_index, len(contrast_levels_pct) - 1)
+        st.session_state["greyscale_pelli_finished"] = bool(next_finished)
+        if not next_finished:
+            st.session_state["greyscale_pelli_letter"] = random.choice(letters)
         st.rerun()
 
 threshold_pct = float(st.session_state["greyscale_pelli_threshold_pct"])
-log_cs = math.log10(1.0 / max(1e-6, threshold_pct / 100.0))
+log_cs = student_compute_log_contrast_sensitivity(threshold_pct)
 
 with st.container(border=True):
     col_1, col_2 = st.columns(2)
