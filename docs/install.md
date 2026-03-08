@@ -46,15 +46,14 @@ git pull
 
 ```sh
 uv python install 3.11
-UV_CACHE_DIR=.uv-cache uv sync
-UV_CACHE_DIR=.uv-cache uv run streamlit run app.py
+uv sync
+uv run streamlit run app.py
 ```
 
 ### Windows PowerShell
 
 ```powershell
 uv python install 3.11
-$env:UV_CACHE_DIR = ".uv-cache"
 uv sync
 uv run streamlit run app.py
 ```
@@ -63,8 +62,8 @@ uv run streamlit run app.py
 
 ```bash
 uv python install 3.11
-UV_CACHE_DIR=.uv-cache uv sync
-UV_CACHE_DIR=.uv-cache uv run streamlit run app.py
+uv sync
+uv run streamlit run app.py
 ```
 
 When the app starts, open `http://localhost:8501`.
@@ -86,14 +85,13 @@ Cause: default cache directory blocked by environment policy.
 Fix: force local cache directory:
 
 ```sh
-UV_CACHE_DIR=.uv-cache uv sync
-UV_CACHE_DIR=.uv-cache uv run streamlit run app.py
+uv sync
+uv run streamlit run app.py
 ```
 
 PowerShell version:
 
 ```powershell
-$env:UV_CACHE_DIR = ".uv-cache"
 uv sync
 uv run streamlit run app.py
 ```
@@ -139,15 +137,14 @@ macOS/Linux or Git Bash:
 
 ```bash
 rm -rf .venv
-UV_CACHE_DIR=.uv-cache uv sync
-UV_CACHE_DIR=.uv-cache uv run streamlit run app.py
+uv sync
+uv run streamlit run app.py
 ```
 
 PowerShell:
 
 ```powershell
 Remove-Item -Recurse -Force .venv -ErrorAction SilentlyContinue
-$env:UV_CACHE_DIR = ".uv-cache"
 uv sync
 uv run streamlit run app.py
 ```

@@ -86,15 +86,14 @@ macOS/Linux:
 
 ```sh
 uv python install 3.11
-UV_CACHE_DIR=.uv-cache uv sync
-UV_CACHE_DIR=.uv-cache uv run streamlit run app.py
+uv sync
+uv run streamlit run app.py
 ```
 
 Windows PowerShell:
 
 ```powershell
 uv python install 3.11
-$env:UV_CACHE_DIR = ".uv-cache"
 uv sync
 uv run streamlit run app.py
 ```
@@ -103,8 +102,8 @@ Windows Git Bash:
 
 ```bash
 uv python install 3.11
-UV_CACHE_DIR=.uv-cache uv sync
-UV_CACHE_DIR=.uv-cache uv run streamlit run app.py
+uv sync
+uv run streamlit run app.py
 ```
 
 Then open `http://localhost:8501` in your browser.
@@ -114,19 +113,19 @@ Then open `http://localhost:8501` in your browser.
 - install/sync dependencies:
 ```sh
 uv python install 3.11
-UV_CACHE_DIR=.uv-cache uv sync
+uv sync
 ```
 - run app:
 ```sh
-UV_CACHE_DIR=.uv-cache uv run streamlit run app.py
+uv run streamlit run app.py
 ```
 - lint:
 ```sh
-UV_CACHE_DIR=.uv-cache uv run ruff check .
+uv run ruff check .
 ```
 - tests:
 ```sh
-UV_CACHE_DIR=.uv-cache uv run pytest
+uv run pytest
 ```
 - clean local artifacts:
 ```sh
